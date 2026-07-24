@@ -1,0 +1,574 @@
+openapi: 3.1.0
+info:
+  title: Opereit Invoice Auditing Contracts Invoice Audits API
+  description: Public API for the Opereit Invoice Auditing product. Upload carrier contracts, run audits against incoming carrier invoices, and retrieve line items and findings.
+  version: 1.0.0
+servers:
+- url: https://api.opereit.com
+  description: Production
+security:
+- apiKey: []
+tags:
+- name: Invoice Audits
+paths:
+  /v1/invoice-audits:
+    post:
+      summary: Create an invoice audit
+      description: 'Upload a carrier invoice and audit it against the rates and surcharges of an existing contract. Returns immediately with `status=PENDING`; auditing runs asynchronously. Poll `GET /v1/invoice-audits` until `status=COMPLETE` to retrieve findings.
+
+
+        Accepted file formats: PDF, CSV.'
+      operationId: createInvoiceAudit
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              - contract_id
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 'The carrier invoice document. Accepted MIME types: `application/pdf`, `text/csv`.'
+                contract_id:
+                  type: string
+                  description: ID of the contract to audit this invoice against.
+      responses:
+        '201':
+          description: Audit created. Auditing runs asynchronously.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  audit:
+                    $ref: '#/components/schemas/InvoiceAudit'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Invoice Audits
+    get:
+      summary: List invoice audits
+      description: Returns a cursor-paginated list of invoice audits.
+      operationId: listInvoiceAudits
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      - name: status
+        in: query
+        description: Filter by audit status.
+        schema:
+          type: string
+          enum:
+          - PENDING
+          - INGESTING
+          - AUDITING
+          - COMPLETE
+          - FAILED
+      - name: contract_id
+        in: query
+        description: Filter by the contract used for the audit.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Cursor-paginated list of audits.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InvoiceAudit'
+                  pagination:
+                    $ref: '#/components/schemas/CursorPagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      tags:
+      - Invoice Audits
+  /v1/invoice-audits/{audit_id}/line-items:
+    get:
+      summary: List invoice audit line items
+      description: Returns a cursor-paginated list of line items (individual shipment charges) extracted from the invoice. Each line item is a single charge — a rate, surcharge, or adjustment — applied to one tracking number.
+      operationId: listInvoiceAuditLineItems
+      parameters:
+      - $ref: '#/components/parameters/AuditId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      - name: charge_type
+        in: query
+        description: Filter by the kind of charge.
+        schema:
+          type: string
+          enum:
+          - RATE
+          - SURCHARGE
+          - ADJUSTMENT
+      - name: tracking_number
+        in: query
+        description: Return only line items associated with this tracking number.
+        schema:
+          type: string
+      - name: has_finding
+        in: query
+        description: If `true`, return only line items that have at least one finding.
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Cursor-paginated list of line items.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InvoiceLineItem'
+                  pagination:
+                    $ref: '#/components/schemas/CursorPagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Invoice Audits
+  /v1/invoice-audits/{audit_id}/findings:
+    get:
+      summary: List invoice audit findings
+      description: Returns a cursor-paginated list of findings — discrepancies detected between the carrier invoice and the contract. See `AuditFinding.type` for the catalog of finding types.
+      operationId: listInvoiceAuditFindings
+      parameters:
+      - $ref: '#/components/parameters/AuditId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      - name: type
+        in: query
+        description: Filter by finding type.
+        schema:
+          type: string
+          enum:
+          - RATE_MISMATCH
+          - RATE_NOT_FOUND
+          - SURCHARGE_MISMATCH
+          - SURCHARGE_NOT_FOUND
+          - WAIVED_SURCHARGE_BILLED
+          - DUPLICATE_CHARGE
+      - name: tracking_number
+        in: query
+        description: Return only findings tied to this tracking number.
+        schema:
+          type: string
+      - name: excluded
+        in: query
+        description: If `false`, return only active (non-excluded) findings. If `true`, return only excluded findings. Omit to return both.
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Cursor-paginated list of findings.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditFinding'
+                  pagination:
+                    $ref: '#/components/schemas/CursorPagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Invoice Audits
+components:
+  schemas:
+    InvoiceAuditFile:
+      type: object
+      description: Metadata about the invoice document uploaded for an audit.
+      required:
+      - id
+      - file_url
+      - file_name
+      - original_file_name
+      - created_at
+      properties:
+        id:
+          type: string
+        file_url:
+          type: string
+          format: uri
+          description: Time-limited URL to download the original invoice file.
+        file_name:
+          type: string
+          description: Storage filename.
+        original_file_name:
+          type: string
+          description: Filename as uploaded by the client.
+        file_size_bytes:
+          type:
+          - integer
+          - 'null'
+          description: File size in bytes.
+        invoice_number:
+          type:
+          - string
+          - 'null'
+          description: Carrier invoice number, extracted from the document.
+        invoice_date:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Date on the invoice, extracted from the document.
+        account_number:
+          type:
+          - string
+          - 'null'
+          description: Carrier account number on the invoice.
+        billing_period_start:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Start of the billing period covered by the invoice.
+        billing_period_end:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: End of the billing period covered by the invoice.
+        currency:
+          type:
+          - string
+          - 'null'
+          description: ISO 4217 currency code the invoice is denominated in.
+        created_at:
+          type: string
+          format: date-time
+          description: When the invoice was uploaded.
+    CursorPagination:
+      type: object
+      required:
+      - cursor
+      - has_more
+      properties:
+        cursor:
+          type:
+          - string
+          - 'null'
+          description: Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items.
+        has_more:
+          type: boolean
+          description: Whether there are more items to fetch beyond the current page.
+    InvoiceAudit:
+      type: object
+      description: An audit of a carrier invoice against a contract.
+      required:
+      - id
+      - contract_id
+      - status
+      - created_at
+      properties:
+        id:
+          type: string
+        contract_id:
+          type: string
+          description: Contract this invoice was audited against.
+        carrier_name:
+          type:
+          - string
+          - 'null'
+          description: Carrier name (denormalized from the contract for convenience).
+        status:
+          type: string
+          enum:
+          - PENDING
+          - INGESTING
+          - AUDITING
+          - COMPLETE
+          - FAILED
+          description: 'Audit lifecycle state.
+
+
+            - `PENDING`: queued for processing.
+
+            - `INGESTING`: parsing the invoice file.
+
+            - `AUDITING`: running audit rules.
+
+            - `COMPLETE`: line items and findings are available.
+
+            - `FAILED`: audit failed; see `status_reason`.'
+        status_reason:
+          type:
+          - string
+          - 'null'
+          description: Explanation when `status=FAILED`.
+        total_line_items:
+          type:
+          - integer
+          - 'null'
+          description: Total line items extracted from the invoice. `null` until ingestion completes.
+        completed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the audit reached a terminal state (`COMPLETE` or `FAILED`).
+        created_at:
+          type: string
+          format: date-time
+          description: When the audit was created.
+        file:
+          oneOf:
+          - $ref: '#/components/schemas/InvoiceAuditFile'
+          - type: 'null'
+          description: Metadata about the uploaded invoice file.
+    InvoiceLineItem:
+      type: object
+      description: A single charge from the carrier invoice — a rate, surcharge, or adjustment applied to one tracking number.
+      required:
+      - id
+      - audit_id
+      - tracking_number
+      - charge_type
+      - amount
+      - has_finding
+      - created_at
+      properties:
+        id:
+          type: string
+        audit_id:
+          type: string
+        tracking_number:
+          type: string
+          description: Carrier tracking number for the shipment.
+        charge_description:
+          type:
+          - string
+          - 'null'
+          description: Free-text charge description from the invoice (e.g. `"Fuel surcharge"`).
+        charge_type:
+          type: string
+          enum:
+          - RATE
+          - SURCHARGE
+          - ADJUSTMENT
+          description: 'Kind of charge.
+
+
+            - `RATE`: base shipping rate.
+
+            - `SURCHARGE`: add-on fee.
+
+            - `ADJUSTMENT`: correction or credit.'
+        service_type:
+          type:
+          - string
+          - 'null'
+          description: Carrier service code applied to the shipment.
+        amount:
+          type: string
+          description: Amount billed, as a decimal string.
+          example: '12.50'
+        weight:
+          type:
+          - string
+          - 'null'
+          description: Actual weight in kg, as a decimal string.
+        billed_weight:
+          type:
+          - string
+          - 'null'
+          description: Billed (chargeable) weight in kg, as a decimal string. May differ from `weight` due to dimensional weight.
+        container_type:
+          type:
+          - string
+          - 'null'
+          description: Container or packaging for the shipment.
+        origin_country:
+          type:
+          - string
+          - 'null'
+          description: ISO 3166-1 alpha-2 origin country code.
+        destination_country:
+          type:
+          - string
+          - 'null'
+          description: ISO 3166-1 alpha-2 destination country code.
+        zone:
+          type:
+          - string
+          - 'null'
+          description: Carrier zone applied to the shipment, if any.
+        has_finding:
+          type: boolean
+          description: Whether the audit produced at least one finding for this line item.
+        created_at:
+          type: string
+          format: date-time
+    AuditFinding:
+      type: object
+      description: A discrepancy detected during the audit between what the carrier billed and what the contract specifies.
+      required:
+      - id
+      - audit_id
+      - line_item_id
+      - tracking_number
+      - type
+      - description
+      - charge_type
+      - amount
+      - excluded
+      - created_at
+      properties:
+        id:
+          type: string
+        audit_id:
+          type: string
+        line_item_id:
+          type: string
+          description: Line item this finding is attached to.
+        tracking_number:
+          type: string
+          description: Tracking number of the shipment the finding relates to.
+        type:
+          type: string
+          enum:
+          - RATE_MISMATCH
+          - RATE_NOT_FOUND
+          - SURCHARGE_MISMATCH
+          - SURCHARGE_NOT_FOUND
+          - WAIVED_SURCHARGE_BILLED
+          - DUPLICATE_CHARGE
+          description: 'The kind of discrepancy.
+
+
+            - `RATE_MISMATCH`: billed rate ≠ contracted rate.
+
+            - `RATE_NOT_FOUND`: no rate in the contract matches the shipment.
+
+            - `SURCHARGE_MISMATCH`: billed surcharge ≠ contracted surcharge.
+
+            - `SURCHARGE_NOT_FOUND`: surcharge billed but not present in the contract.
+
+            - `WAIVED_SURCHARGE_BILLED`: a surcharge marked as waived in the contract was charged anyway.
+
+            - `DUPLICATE_CHARGE`: the same charge appears more than once for the same shipment.'
+        expected_value:
+          description: 'The value the contract specifies. Shape depends on `type` (e.g. `{ "rate": "10.00", "currency": "EUR" }` for `RATE_MISMATCH`).'
+        actual_value:
+          description: The value the carrier billed. Shape depends on `type`.
+        description:
+          type: string
+          description: Human-readable explanation of the finding.
+        charge_type:
+          type: string
+          enum:
+          - RATE
+          - SURCHARGE
+          - ADJUSTMENT
+          description: Kind of charge the finding is about (denormalized from the line item).
+        charge_description:
+          type:
+          - string
+          - 'null'
+          description: Charge description from the invoice (denormalized from the line item).
+        amount:
+          type: string
+          description: Amount billed for the line item, as a decimal string.
+        service_type:
+          type:
+          - string
+          - 'null'
+          description: Carrier service code (denormalized from the line item).
+        auditor:
+          type: string
+          description: Name of the audit rule that produced this finding.
+        confidence:
+          type: string
+          description: Confidence level reported by the auditor (e.g. `HIGH`, `MEDIUM`, `LOW`).
+        excluded:
+          type: boolean
+          description: Whether this finding has been marked as known/expected by the customer and should be excluded from active findings.
+        created_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: Number of items to return per request.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    AuditId:
+      name: audit_id
+      in: path
+      required: true
+      description: ID of the invoice audit.
+      schema:
+        type: string
+    Cursor:
+      name: cursor
+      in: query
+      description: Opaque cursor from a previous response. Omit on the first request.
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: Authentication is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was malformed or failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: basic
+      description: 'HTTP Basic Auth using your API key. Send `Authorization: Basic base64(key_id:key_secret)`.'

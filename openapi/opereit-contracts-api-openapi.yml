@@ -1,0 +1,535 @@
+openapi: 3.1.0
+info:
+  title: Opereit Invoice Auditing Contracts API
+  description: Public API for the Opereit Invoice Auditing product. Upload carrier contracts, run audits against incoming carrier invoices, and retrieve line items and findings.
+  version: 1.0.0
+servers:
+- url: https://api.opereit.com
+  description: Production
+security:
+- apiKey: []
+tags:
+- name: Contracts
+paths:
+  /v1/contracts:
+    post:
+      summary: Upload a carrier contract
+      description: 'Upload a carrier contract document. Opereit asynchronously extracts rate cards and surcharges from the file. The contract is created with `status=PROCESSING`; it transitions to `ACTIVE` once extraction completes (or `FAILED` if extraction errors out).
+
+
+        Accepted file formats: PDF, PNG, JPEG, CSV, XLS, XLSX.'
+      operationId: uploadContract
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              - carrier_name
+              - signing_date
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 'The contract document. Accepted MIME types: `application/pdf`, `image/png`, `image/jpeg`, `text/csv`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`.'
+                carrier_name:
+                  type: string
+                  description: The carrier this contract belongs to (e.g. `UPS`, `FedEx`, `DHL Express`).
+                signing_date:
+                  type: string
+                  format: date
+                  description: Date the contract was signed, in `YYYY-MM-DD` format.
+                contract_number:
+                  type: string
+                  description: Optional carrier-issued contract number.
+                account_number:
+                  type: string
+                  description: Optional carrier account number this contract applies to.
+      responses:
+        '201':
+          description: Contract created. Extraction runs asynchronously.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contract:
+                    $ref: '#/components/schemas/Contract'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      tags:
+      - Contracts
+    get:
+      summary: List contracts
+      description: Returns a cursor-paginated list of contracts uploaded by your organization.
+      operationId: listContracts
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      - name: status
+        in: query
+        description: Filter by contract status.
+        schema:
+          type: string
+          enum:
+          - PROCESSING
+          - ACTIVE
+          - EXPIRED
+          - FAILED
+      - name: carrier_name
+        in: query
+        description: Filter by carrier name (case-insensitive exact match).
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Cursor-paginated list of contracts.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contract'
+                  pagination:
+                    $ref: '#/components/schemas/CursorPagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      tags:
+      - Contracts
+  /v1/contracts/{contract_id}/rates:
+    get:
+      summary: List contract rates
+      description: Returns a cursor-paginated list of rate-card entries extracted from a contract. Each entry represents a single (origin, destination, service, weight) rate.
+      operationId: listContractRates
+      parameters:
+      - $ref: '#/components/parameters/ContractId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      - name: origin_country
+        in: query
+        description: Filter by ISO 3166-1 alpha-2 origin country code.
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 2
+      - name: destination_country
+        in: query
+        description: Filter by ISO 3166-1 alpha-2 destination country code.
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 2
+      - name: service_type
+        in: query
+        description: Filter by carrier service code (e.g. `EXPRESS_WORLDWIDE`).
+        schema:
+          type: string
+      - name: weight_min
+        in: query
+        description: Return only rates whose weight band overlaps with weight ≥ this value (kg).
+        schema:
+          type: number
+      - name: weight_max
+        in: query
+        description: Return only rates whose weight band overlaps with weight ≤ this value (kg).
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Cursor-paginated rate-card entries.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContractRate'
+                  pagination:
+                    $ref: '#/components/schemas/CursorPagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Contracts
+  /v1/contracts/{contract_id}/surcharges:
+    get:
+      summary: List contract surcharges
+      description: Returns a cursor-paginated list of surcharges extracted from a contract (fuel, residential delivery, peak-season, etc.).
+      operationId: listContractSurcharges
+      parameters:
+      - $ref: '#/components/parameters/ContractId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cursor'
+      - name: search
+        in: query
+        description: Free-text search against the surcharge display name.
+        schema:
+          type: string
+      - name: billing_type
+        in: query
+        description: Filter by how the surcharge is billed.
+        schema:
+          type: string
+          enum:
+          - PERCENTAGE
+          - PERCENTAGE_OF_BASE
+          - FIXED
+          - TIERED
+          - PERCENTAGE_OFF
+      - name: service_type
+        in: query
+        description: Filter by carrier service code the surcharge applies to.
+        schema:
+          type: string
+      - name: is_waived
+        in: query
+        description: If `true`, returns only surcharges marked as waived in the contract.
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Cursor-paginated surcharges.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContractSurcharge'
+                  pagination:
+                    $ref: '#/components/schemas/CursorPagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Contracts
+components:
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: Number of items to return per request.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    Cursor:
+      name: cursor
+      in: query
+      description: Opaque cursor from a previous response. Omit on the first request.
+      schema:
+        type: string
+    ContractId:
+      name: contract_id
+      in: path
+      required: true
+      description: ID of the contract.
+      schema:
+        type: string
+  schemas:
+    CursorPagination:
+      type: object
+      required:
+      - cursor
+      - has_more
+      properties:
+        cursor:
+          type:
+          - string
+          - 'null'
+          description: Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items.
+        has_more:
+          type: boolean
+          description: Whether there are more items to fetch beyond the current page.
+    Contract:
+      type: object
+      description: A carrier contract uploaded to Opereit. Rates and surcharges are extracted asynchronously.
+      required:
+      - id
+      - carrier_name
+      - signing_date
+      - status
+      - rate_count
+      - surcharge_count
+      - created_at
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the contract.
+        carrier_name:
+          type: string
+          description: Carrier the contract belongs to.
+          example: DHL Express
+        contract_number:
+          type:
+          - string
+          - 'null'
+          description: Carrier-issued contract number, if any.
+        account_number:
+          type:
+          - string
+          - 'null'
+          description: Carrier account number this contract applies to, if any.
+        signing_date:
+          type: string
+          format: date
+          description: Date the contract was signed.
+        effective_date:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Date the contracted rates take effect, if specified.
+        expiration_date:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Date the contract expires, if specified.
+        status:
+          type: string
+          enum:
+          - PROCESSING
+          - ACTIVE
+          - EXPIRED
+          - FAILED
+          description: 'Contract lifecycle state.
+
+
+            - `PROCESSING`: extraction in progress.
+
+            - `ACTIVE`: extraction complete; rates and surcharges are available.
+
+            - `EXPIRED`: contract expiration date has passed.
+
+            - `FAILED`: extraction failed; see `status_reason`.'
+        status_reason:
+          type:
+          - string
+          - 'null'
+          description: Explanation when `status=FAILED`.
+        file_url:
+          type: string
+          format: uri
+          description: Time-limited URL to download the original contract file.
+        rate_count:
+          type: integer
+          description: Number of rate-card entries extracted from the contract.
+        surcharge_count:
+          type: integer
+          description: Number of surcharges extracted from the contract.
+        created_at:
+          type: string
+          format: date-time
+          description: When the contract was uploaded.
+    ContractRate:
+      type: object
+      description: 'A single rate-card entry extracted from a contract: the price for shipping a parcel matching the (origin, destination, service, weight) selectors.'
+      required:
+      - id
+      - contract_id
+      - origin_country
+      - destination_country
+      - service_type
+      - container_type
+      - weight_mode
+      - rate_type
+      - rate
+      - currency
+      properties:
+        id:
+          type: string
+        contract_id:
+          type: string
+        origin_country:
+          type: string
+          description: ISO 3166-1 alpha-2 origin country code.
+        destination_country:
+          type: string
+          description: ISO 3166-1 alpha-2 destination country code.
+        origin_postcode:
+          type:
+          - string
+          - 'null'
+          description: Origin postcode pattern, if the rate is postcode-specific.
+        destination_postcode:
+          type:
+          - string
+          - 'null'
+          description: Destination postcode pattern, if the rate is postcode-specific.
+        service_type:
+          type: string
+          description: Carrier service code this rate applies to.
+          example: EXPRESS_WORLDWIDE
+        container_type:
+          type: string
+          description: Container or packaging the rate applies to.
+          example: PARCEL
+        weight:
+          type:
+          - string
+          - 'null'
+          description: Exact weight in kg this rate applies to (only set when `weight_mode=FIXED`).
+        weight_min:
+          type:
+          - string
+          - 'null'
+          description: Lower bound of the weight band in kg, inclusive (only set when `weight_mode=RANGE`).
+        weight_max:
+          type:
+          - string
+          - 'null'
+          description: Upper bound of the weight band in kg, exclusive (only set when `weight_mode=RANGE`).
+        weight_mode:
+          type: string
+          enum:
+          - FIXED
+          - RANGE
+          description: Whether the rate applies to an exact weight or a weight band.
+        rate_type:
+          type: string
+          enum:
+          - FLAT
+          - PER_KG
+          description: Whether `rate` is a flat fee per shipment or a per-kilogram price.
+        rate:
+          type: string
+          description: Decimal price as a string (preserves precision).
+          example: '12.50'
+        currency:
+          type: string
+          description: ISO 4217 currency code.
+          example: EUR
+    ContractSurcharge:
+      type: object
+      description: A surcharge extracted from a contract — an additional fee applied to shipments under specific conditions.
+      required:
+      - id
+      - contract_id
+      - slug
+      - display_name
+      - billing_type
+      - value
+      - currency
+      - is_waived
+      properties:
+        id:
+          type: string
+        contract_id:
+          type: string
+        slug:
+          type: string
+          description: Stable identifier for the surcharge type.
+          example: fuel
+        display_name:
+          type: string
+          description: Human-readable surcharge name.
+          example: Fuel surcharge
+        origin_country:
+          type:
+          - string
+          - 'null'
+          description: ISO 3166-1 alpha-2 origin country code, if the surcharge is geographically scoped.
+        destination_country:
+          type:
+          - string
+          - 'null'
+          description: ISO 3166-1 alpha-2 destination country code, if the surcharge is geographically scoped.
+        service_type:
+          type:
+          - string
+          - 'null'
+          description: Service code this surcharge applies to, or `null` if it applies to all services.
+        billing_type:
+          type: string
+          enum:
+          - PERCENTAGE
+          - PERCENTAGE_OF_BASE
+          - FIXED
+          - TIERED
+          - PERCENTAGE_OFF
+          description: 'How the surcharge is billed.
+
+
+            - `PERCENTAGE`: % of one or more line items (see `calculation_base`).
+
+            - `PERCENTAGE_OF_BASE`: % of the base shipping rate only.
+
+            - `FIXED`: flat fee per shipment.
+
+            - `TIERED`: amount varies by weight or other tier.
+
+            - `PERCENTAGE_OFF`: discount, expressed as a percentage.'
+        value:
+          type: string
+          description: Surcharge value as a decimal string. Interpretation depends on `billing_type` (e.g. `"15.00"` = 15% for `PERCENTAGE`, or 15 currency units for `FIXED`).
+          example: '15.00'
+        currency:
+          type: string
+          description: ISO 4217 currency code (relevant for `FIXED` and `TIERED` surcharges).
+          example: EUR
+        is_waived:
+          type: boolean
+          description: Whether this surcharge is waived under the contract.
+        calculation_base:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: For `PERCENTAGE` surcharges, the list of slugs the percentage is applied to (e.g. `["base_rate"]`).
+    Error:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+  responses:
+    Unauthorized:
+      description: Authentication is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was malformed or failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: basic
+      description: 'HTTP Basic Auth using your API key. Send `Authorization: Basic base64(key_id:key_secret)`.'
