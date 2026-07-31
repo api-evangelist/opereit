@@ -1,0 +1,29 @@
+generated: '2026-07-20'
+method: searched
+note: >-
+  Probed the /.well-known/ discovery surface on the website, docs, and API
+  hosts. No documents were served (all 404/unreachable). Recorded for audit;
+  no WellKnown pointer wired since nothing was found.
+probes:
+  - host: https://www.opereit.ai
+    path: /.well-known/security.txt
+    status: 404
+  - host: https://www.opereit.ai
+    path: /.well-known/openid-configuration
+    status: 404
+  - host: https://www.opereit.ai
+    path: /.well-known/ai-plugin.json
+    status: 404
+  - host: https://developers.opereit.ai
+    path: /.well-known/security.txt
+    status: 404
+  - host: https://api.opereit.com
+    path: /.well-known/security.txt
+    status: 0
+    detail: host did not respond to HTTPS on this path
+  - host: https://api.opereit.com
+    path: /.well-known/openid-configuration
+    status: 0
+  - host: https://api.opereit.com
+    path: /.well-known/oauth-authorization-server
+    status: 0

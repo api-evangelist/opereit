@@ -1,0 +1,35 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/opereit-invoice-auditing-openapi.json
+standards:
+  - id: openapi-3.1
+    conforms: true
+    evidence: openapi field is 3.1.0
+  - id: http-basic-auth
+    conforms: true
+    evidence: securitySchemes.apiKey is type http scheme basic
+  - id: oauth2
+    conforms: false
+  - id: oidc
+    conforms: false
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: 'errors use a single-field { "error": ... } JSON body, not application/problem+json'
+  - id: cursor-pagination
+    conforms: true
+    evidence: 'list endpoints use limit/cursor with { data, pagination: { cursor, has_more } }'
+  - id: iso3166-country-codes
+    conforms: true
+    evidence: origin_country/destination_country are ISO 3166-1 alpha-2
+  - id: iso4217-currency
+    conforms: true
+    evidence: currency fields are ISO 4217 codes
+  - id: iso8601-timestamps
+    conforms: true
+    evidence: timestamps are ISO 8601 date-time; date fields are YYYY-MM-DD
+  - id: webhooks
+    conforms: false
+    evidence: documented as "coming soon"; polling only today
+compliance_program:
+  published: false
+  note: No SOC 2 / ISO 27001 / trust center or certification program published at this time.

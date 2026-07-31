@@ -1,0 +1,21 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Opereit Invoice Auditing API
+  version: 1.0.0
+extends: openapi/opereit-invoice-auditing-openapi.json
+actions:
+  - target: $.info
+    update:
+      x-apievangelist-enriched: '2026-07-20'
+      x-apievangelist-provider: opereit
+      x-apievangelist-category: logistics-cost-recovery
+  - target: $.info
+    update:
+      x-base-url-note: >-
+        Docs prose lists https://api.obsydianai.com as the base URL while the
+        spec servers[] and curl example use https://api.opereit.com. Canonical
+        host per this overlay is https://api.opereit.com.
+  - target: $.components.securitySchemes.apiKey
+    update:
+      x-key-secret-prefix: opr_live_
+      x-provisioning: Contact your Opereit account manager to provision a key.

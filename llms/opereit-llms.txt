@@ -1,0 +1,19 @@
+# Opereit for Developers
+
+## Docs
+
+- [List contracts](https://developers.opereit.ai/api-reference/endpoint/contracts/list.md): Returns a cursor-paginated list of contracts uploaded by your organization.
+- [List contract rates](https://developers.opereit.ai/api-reference/endpoint/contracts/list-rates.md): Returns a cursor-paginated list of rate-card entries extracted from a contract. Each entry represents a single (origin, destination, service, weight) rate.
+- [List contract surcharges](https://developers.opereit.ai/api-reference/endpoint/contracts/list-surcharges.md): Returns a cursor-paginated list of surcharges extracted from a contract (fuel, residential delivery, peak-season, etc.).
+- [Upload contract](https://developers.opereit.ai/api-reference/endpoint/contracts/upload.md): Upload a carrier contract document. Opereit asynchronously extracts rate cards and surcharges from the file. The contract is created with `status=PROCESSING`; it transitions to `ACTIVE` once extraction completes (or `FAILED` if extraction errors out).
+- [Create invoice audit](https://developers.opereit.ai/api-reference/endpoint/invoice-audits/create.md): Upload a carrier invoice and audit it against the rates and surcharges of an existing contract. Returns immediately with `status=PENDING`; auditing runs asynchronously. Poll `GET /v1/invoice-audits` until `status=COMPLETE` to retrieve findings.
+- [List invoice audits](https://developers.opereit.ai/api-reference/endpoint/invoice-audits/list.md): Returns a cursor-paginated list of invoice audits.
+- [List findings](https://developers.opereit.ai/api-reference/endpoint/invoice-audits/list-findings.md): Returns a cursor-paginated list of findings — discrepancies detected between the carrier invoice and the contract. See `AuditFinding.type` for the catalog of finding types.
+- [List line items](https://developers.opereit.ai/api-reference/endpoint/invoice-audits/list-line-items.md): Returns a cursor-paginated list of line items (individual shipment charges) extracted from the invoice. Each line item is a single charge — a rate, surcharge, or adjustment — applied to one tracking number.
+- [Introduction](https://developers.opereit.ai/api-reference/introduction.md): Public API for the Opereit product
+- [Webhooks](https://developers.opereit.ai/api-reference/webhooks.md): Receive push notifications when contracts and audits change state
+- [Introduction](https://developers.opereit.ai/index.md): Welcome to Opereit!
+
+## OpenAPI Specs
+
+- [openapi](https://developers.opereit.ai/api-reference/openapi.json)

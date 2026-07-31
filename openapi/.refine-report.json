@@ -1,0 +1,16 @@
+{
+  "provider": "opereit",
+  "sources": [
+    "opereit-contracts-api-openapi.yml",
+    "opereit-invoice-audits-api-openapi.yml"
+  ],
+  "outputs": [
+    "opereit-contracts-api-openapi.yml",
+    "opereit-invoice-audits-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

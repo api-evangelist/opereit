@@ -1,0 +1,12 @@
+generated: '2026-07-20'
+method: generated
+source: openapi/opereit-invoice-auditing-openapi.json
+skills:
+  - file: opereit-audit-carrier-invoice.md
+    name: Audit a carrier invoice against a contract
+    api: openapi/opereit-invoice-auditing-openapi.json
+    operations: [uploadContract, createInvoiceAudit, listInvoiceAudits, listInvoiceAuditFindings]
+  - file: opereit-review-contract-rates.md
+    name: Review extracted contract rates and surcharges
+    api: openapi/opereit-invoice-auditing-openapi.json
+    operations: [uploadContract, listContracts, listContractRates, listContractSurcharges]

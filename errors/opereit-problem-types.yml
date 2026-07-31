@@ -1,0 +1,52 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/opereit-invoice-auditing-openapi.json
+docs: https://developers.opereit.ai/api-reference/introduction
+format: single-field-json
+envelope:
+  shape: '{ "error": "Human-readable message" }'
+  field: error
+  note: >-
+    Opereit does not use RFC 9457 application/problem+json. Every error returns
+    a JSON body with a single "error" string.
+problems:
+  - status: 400
+    name: BadRequest
+    title: The request was malformed or failed validation.
+    example: '{ "error": "Invalid contract_id" }'
+    source_operations:
+      - openapi/opereit-invoice-auditing-openapi.json#uploadContract
+      - openapi/opereit-invoice-auditing-openapi.json#createInvoiceAudit
+  - status: 401
+    name: Unauthorized
+    title: Authentication is missing or invalid.
+    detail: >-
+      Returned with a WWW-Authenticate: Basic realm="Obsydian API" header.
+      Body: { "error": "Authentication required" }.
+    source_operations:
+      - openapi/opereit-invoice-auditing-openapi.json#listContracts
+      - openapi/opereit-invoice-auditing-openapi.json#listInvoiceAudits
+  - status: 404
+    name: NotFound
+    title: The requested resource does not exist.
+    source_operations:
+      - openapi/opereit-invoice-auditing-openapi.json#listContractRates
+      - openapi/opereit-invoice-auditing-openapi.json#listContractSurcharges
+      - openapi/opereit-invoice-auditing-openapi.json#createInvoiceAudit
+      - openapi/opereit-invoice-auditing-openapi.json#listInvoiceAuditLineItems
+      - openapi/opereit-invoice-auditing-openapi.json#listInvoiceAuditFindings
+  - status: 500
+    name: InternalServerError
+    title: Unexpected server error.
+    detail: Documented in the error table but not enumerated per-operation in the spec.
+audit_finding_types:
+  note: >-
+    Domain finding types (not HTTP errors) reported by AuditFinding.type — the
+    discrepancy catalog the product surfaces.
+  types:
+    - RATE_MISMATCH
+    - RATE_NOT_FOUND
+    - SURCHARGE_MISMATCH
+    - SURCHARGE_NOT_FOUND
+    - WAIVED_SURCHARGE_BILLED
+    - DUPLICATE_CHARGE

@@ -1,0 +1,1026 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Opereit Invoice Auditing API",
+    "description": "Public API for the Opereit Invoice Auditing product. Upload carrier contracts, run audits against incoming carrier invoices, and retrieve line items and findings.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.opereit.com",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "paths": {
+    "/v1/contracts": {
+      "post": {
+        "summary": "Upload a carrier contract",
+        "description": "Upload a carrier contract document. Opereit asynchronously extracts rate cards and surcharges from the file. The contract is created with `status=PROCESSING`; it transitions to `ACTIVE` once extraction completes (or `FAILED` if extraction errors out).\n\nAccepted file formats: PDF, PNG, JPEG, CSV, XLS, XLSX.",
+        "operationId": "uploadContract",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file", "carrier_name", "signing_date"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The contract document. Accepted MIME types: `application/pdf`, `image/png`, `image/jpeg`, `text/csv`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`."
+                  },
+                  "carrier_name": {
+                    "type": "string",
+                    "description": "The carrier this contract belongs to (e.g. `UPS`, `FedEx`, `DHL Express`)."
+                  },
+                  "signing_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Date the contract was signed, in `YYYY-MM-DD` format."
+                  },
+                  "contract_number": {
+                    "type": "string",
+                    "description": "Optional carrier-issued contract number."
+                  },
+                  "account_number": {
+                    "type": "string",
+                    "description": "Optional carrier account number this contract applies to."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contract created. Extraction runs asynchronously.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contract": { "$ref": "#/components/schemas/Contract" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "get": {
+        "summary": "List contracts",
+        "description": "Returns a cursor-paginated list of contracts uploaded by your organization.",
+        "operationId": "listContracts",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by contract status.",
+            "schema": {
+              "type": "string",
+              "enum": ["PROCESSING", "ACTIVE", "EXPIRED", "FAILED"]
+            }
+          },
+          {
+            "name": "carrier_name",
+            "in": "query",
+            "description": "Filter by carrier name (case-insensitive exact match).",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated list of contracts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "pagination"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Contract" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/CursorPagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/v1/contracts/{contract_id}/rates": {
+      "get": {
+        "summary": "List contract rates",
+        "description": "Returns a cursor-paginated list of rate-card entries extracted from a contract. Each entry represents a single (origin, destination, service, weight) rate.",
+        "operationId": "listContractRates",
+        "parameters": [
+          { "$ref": "#/components/parameters/ContractId" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "origin_country",
+            "in": "query",
+            "description": "Filter by ISO 3166-1 alpha-2 origin country code.",
+            "schema": { "type": "string", "minLength": 2, "maxLength": 2 }
+          },
+          {
+            "name": "destination_country",
+            "in": "query",
+            "description": "Filter by ISO 3166-1 alpha-2 destination country code.",
+            "schema": { "type": "string", "minLength": 2, "maxLength": 2 }
+          },
+          {
+            "name": "service_type",
+            "in": "query",
+            "description": "Filter by carrier service code (e.g. `EXPRESS_WORLDWIDE`).",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "weight_min",
+            "in": "query",
+            "description": "Return only rates whose weight band overlaps with weight ≥ this value (kg).",
+            "schema": { "type": "number" }
+          },
+          {
+            "name": "weight_max",
+            "in": "query",
+            "description": "Return only rates whose weight band overlaps with weight ≤ this value (kg).",
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated rate-card entries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "pagination"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ContractRate" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/CursorPagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/v1/contracts/{contract_id}/surcharges": {
+      "get": {
+        "summary": "List contract surcharges",
+        "description": "Returns a cursor-paginated list of surcharges extracted from a contract (fuel, residential delivery, peak-season, etc.).",
+        "operationId": "listContractSurcharges",
+        "parameters": [
+          { "$ref": "#/components/parameters/ContractId" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Free-text search against the surcharge display name.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "billing_type",
+            "in": "query",
+            "description": "Filter by how the surcharge is billed.",
+            "schema": {
+              "type": "string",
+              "enum": ["PERCENTAGE", "PERCENTAGE_OF_BASE", "FIXED", "TIERED", "PERCENTAGE_OFF"]
+            }
+          },
+          {
+            "name": "service_type",
+            "in": "query",
+            "description": "Filter by carrier service code the surcharge applies to.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "is_waived",
+            "in": "query",
+            "description": "If `true`, returns only surcharges marked as waived in the contract.",
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated surcharges.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "pagination"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ContractSurcharge" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/CursorPagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/v1/invoice-audits": {
+      "post": {
+        "summary": "Create an invoice audit",
+        "description": "Upload a carrier invoice and audit it against the rates and surcharges of an existing contract. Returns immediately with `status=PENDING`; auditing runs asynchronously. Poll `GET /v1/invoice-audits` until `status=COMPLETE` to retrieve findings.\n\nAccepted file formats: PDF, CSV.",
+        "operationId": "createInvoiceAudit",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file", "contract_id"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The carrier invoice document. Accepted MIME types: `application/pdf`, `text/csv`."
+                  },
+                  "contract_id": {
+                    "type": "string",
+                    "description": "ID of the contract to audit this invoice against."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Audit created. Auditing runs asynchronously.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "audit": { "$ref": "#/components/schemas/InvoiceAudit" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "get": {
+        "summary": "List invoice audits",
+        "description": "Returns a cursor-paginated list of invoice audits.",
+        "operationId": "listInvoiceAudits",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by audit status.",
+            "schema": {
+              "type": "string",
+              "enum": ["PENDING", "INGESTING", "AUDITING", "COMPLETE", "FAILED"]
+            }
+          },
+          {
+            "name": "contract_id",
+            "in": "query",
+            "description": "Filter by the contract used for the audit.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated list of audits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "pagination"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/InvoiceAudit" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/CursorPagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/v1/invoice-audits/{audit_id}/line-items": {
+      "get": {
+        "summary": "List invoice audit line items",
+        "description": "Returns a cursor-paginated list of line items (individual shipment charges) extracted from the invoice. Each line item is a single charge — a rate, surcharge, or adjustment — applied to one tracking number.",
+        "operationId": "listInvoiceAuditLineItems",
+        "parameters": [
+          { "$ref": "#/components/parameters/AuditId" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "charge_type",
+            "in": "query",
+            "description": "Filter by the kind of charge.",
+            "schema": {
+              "type": "string",
+              "enum": ["RATE", "SURCHARGE", "ADJUSTMENT"]
+            }
+          },
+          {
+            "name": "tracking_number",
+            "in": "query",
+            "description": "Return only line items associated with this tracking number.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "has_finding",
+            "in": "query",
+            "description": "If `true`, return only line items that have at least one finding.",
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated list of line items.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "pagination"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/InvoiceLineItem" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/CursorPagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/v1/invoice-audits/{audit_id}/findings": {
+      "get": {
+        "summary": "List invoice audit findings",
+        "description": "Returns a cursor-paginated list of findings — discrepancies detected between the carrier invoice and the contract. See `AuditFinding.type` for the catalog of finding types.",
+        "operationId": "listInvoiceAuditFindings",
+        "parameters": [
+          { "$ref": "#/components/parameters/AuditId" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by finding type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "RATE_MISMATCH",
+                "RATE_NOT_FOUND",
+                "SURCHARGE_MISMATCH",
+                "SURCHARGE_NOT_FOUND",
+                "WAIVED_SURCHARGE_BILLED",
+                "DUPLICATE_CHARGE"
+              ]
+            }
+          },
+          {
+            "name": "tracking_number",
+            "in": "query",
+            "description": "Return only findings tied to this tracking number.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "excluded",
+            "in": "query",
+            "description": "If `false`, return only active (non-excluded) findings. If `true`, return only excluded findings. Omit to return both.",
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated list of findings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "pagination"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/AuditFinding" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/CursorPagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "HTTP Basic Auth using your API key. Send `Authorization: Basic base64(key_id:key_secret)`."
+      }
+    },
+    "parameters": {
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "Number of items to return per request.",
+        "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "description": "Opaque cursor from a previous response. Omit on the first request.",
+        "schema": { "type": "string" }
+      },
+      "ContractId": {
+        "name": "contract_id",
+        "in": "path",
+        "required": true,
+        "description": "ID of the contract.",
+        "schema": { "type": "string" }
+      },
+      "AuditId": {
+        "name": "audit_id",
+        "in": "path",
+        "required": true,
+        "description": "ID of the invoice audit.",
+        "schema": { "type": "string" }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "The request was malformed or failed validation.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication is missing or invalid.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The requested resource does not exist.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "CursorPagination": {
+        "type": "object",
+        "required": ["cursor", "has_more"],
+        "properties": {
+          "cursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items."
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "Whether there are more items to fetch beyond the current page."
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message."
+          }
+        }
+      },
+      "Contract": {
+        "type": "object",
+        "description": "A carrier contract uploaded to Opereit. Rates and surcharges are extracted asynchronously.",
+        "required": [
+          "id",
+          "carrier_name",
+          "signing_date",
+          "status",
+          "rate_count",
+          "surcharge_count",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the contract."
+          },
+          "carrier_name": {
+            "type": "string",
+            "description": "Carrier the contract belongs to.",
+            "example": "DHL Express"
+          },
+          "contract_number": {
+            "type": ["string", "null"],
+            "description": "Carrier-issued contract number, if any."
+          },
+          "account_number": {
+            "type": ["string", "null"],
+            "description": "Carrier account number this contract applies to, if any."
+          },
+          "signing_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the contract was signed."
+          },
+          "effective_date": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "Date the contracted rates take effect, if specified."
+          },
+          "expiration_date": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "Date the contract expires, if specified."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PROCESSING", "ACTIVE", "EXPIRED", "FAILED"],
+            "description": "Contract lifecycle state.\n\n- `PROCESSING`: extraction in progress.\n- `ACTIVE`: extraction complete; rates and surcharges are available.\n- `EXPIRED`: contract expiration date has passed.\n- `FAILED`: extraction failed; see `status_reason`."
+          },
+          "status_reason": {
+            "type": ["string", "null"],
+            "description": "Explanation when `status=FAILED`."
+          },
+          "file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Time-limited URL to download the original contract file."
+          },
+          "rate_count": {
+            "type": "integer",
+            "description": "Number of rate-card entries extracted from the contract."
+          },
+          "surcharge_count": {
+            "type": "integer",
+            "description": "Number of surcharges extracted from the contract."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the contract was uploaded."
+          }
+        }
+      },
+      "ContractRate": {
+        "type": "object",
+        "description": "A single rate-card entry extracted from a contract: the price for shipping a parcel matching the (origin, destination, service, weight) selectors.",
+        "required": [
+          "id",
+          "contract_id",
+          "origin_country",
+          "destination_country",
+          "service_type",
+          "container_type",
+          "weight_mode",
+          "rate_type",
+          "rate",
+          "currency"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "contract_id": { "type": "string" },
+          "origin_country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 origin country code."
+          },
+          "destination_country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 destination country code."
+          },
+          "origin_postcode": {
+            "type": ["string", "null"],
+            "description": "Origin postcode pattern, if the rate is postcode-specific."
+          },
+          "destination_postcode": {
+            "type": ["string", "null"],
+            "description": "Destination postcode pattern, if the rate is postcode-specific."
+          },
+          "service_type": {
+            "type": "string",
+            "description": "Carrier service code this rate applies to.",
+            "example": "EXPRESS_WORLDWIDE"
+          },
+          "container_type": {
+            "type": "string",
+            "description": "Container or packaging the rate applies to.",
+            "example": "PARCEL"
+          },
+          "weight": {
+            "type": ["string", "null"],
+            "description": "Exact weight in kg this rate applies to (only set when `weight_mode=FIXED`)."
+          },
+          "weight_min": {
+            "type": ["string", "null"],
+            "description": "Lower bound of the weight band in kg, inclusive (only set when `weight_mode=RANGE`)."
+          },
+          "weight_max": {
+            "type": ["string", "null"],
+            "description": "Upper bound of the weight band in kg, exclusive (only set when `weight_mode=RANGE`)."
+          },
+          "weight_mode": {
+            "type": "string",
+            "enum": ["FIXED", "RANGE"],
+            "description": "Whether the rate applies to an exact weight or a weight band."
+          },
+          "rate_type": {
+            "type": "string",
+            "enum": ["FLAT", "PER_KG"],
+            "description": "Whether `rate` is a flat fee per shipment or a per-kilogram price."
+          },
+          "rate": {
+            "type": "string",
+            "description": "Decimal price as a string (preserves precision).",
+            "example": "12.50"
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code.",
+            "example": "EUR"
+          }
+        }
+      },
+      "ContractSurcharge": {
+        "type": "object",
+        "description": "A surcharge extracted from a contract — an additional fee applied to shipments under specific conditions.",
+        "required": [
+          "id",
+          "contract_id",
+          "slug",
+          "display_name",
+          "billing_type",
+          "value",
+          "currency",
+          "is_waived"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "contract_id": { "type": "string" },
+          "slug": {
+            "type": "string",
+            "description": "Stable identifier for the surcharge type.",
+            "example": "fuel"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable surcharge name.",
+            "example": "Fuel surcharge"
+          },
+          "origin_country": {
+            "type": ["string", "null"],
+            "description": "ISO 3166-1 alpha-2 origin country code, if the surcharge is geographically scoped."
+          },
+          "destination_country": {
+            "type": ["string", "null"],
+            "description": "ISO 3166-1 alpha-2 destination country code, if the surcharge is geographically scoped."
+          },
+          "service_type": {
+            "type": ["string", "null"],
+            "description": "Service code this surcharge applies to, or `null` if it applies to all services."
+          },
+          "billing_type": {
+            "type": "string",
+            "enum": ["PERCENTAGE", "PERCENTAGE_OF_BASE", "FIXED", "TIERED", "PERCENTAGE_OFF"],
+            "description": "How the surcharge is billed.\n\n- `PERCENTAGE`: % of one or more line items (see `calculation_base`).\n- `PERCENTAGE_OF_BASE`: % of the base shipping rate only.\n- `FIXED`: flat fee per shipment.\n- `TIERED`: amount varies by weight or other tier.\n- `PERCENTAGE_OFF`: discount, expressed as a percentage."
+          },
+          "value": {
+            "type": "string",
+            "description": "Surcharge value as a decimal string. Interpretation depends on `billing_type` (e.g. `\"15.00\"` = 15% for `PERCENTAGE`, or 15 currency units for `FIXED`).",
+            "example": "15.00"
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code (relevant for `FIXED` and `TIERED` surcharges).",
+            "example": "EUR"
+          },
+          "is_waived": {
+            "type": "boolean",
+            "description": "Whether this surcharge is waived under the contract."
+          },
+          "calculation_base": {
+            "type": ["array", "null"],
+            "items": { "type": "string" },
+            "description": "For `PERCENTAGE` surcharges, the list of slugs the percentage is applied to (e.g. `[\"base_rate\"]`)."
+          }
+        }
+      },
+      "InvoiceAuditFile": {
+        "type": "object",
+        "description": "Metadata about the invoice document uploaded for an audit.",
+        "required": ["id", "file_url", "file_name", "original_file_name", "created_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Time-limited URL to download the original invoice file."
+          },
+          "file_name": {
+            "type": "string",
+            "description": "Storage filename."
+          },
+          "original_file_name": {
+            "type": "string",
+            "description": "Filename as uploaded by the client."
+          },
+          "file_size_bytes": {
+            "type": ["integer", "null"],
+            "description": "File size in bytes."
+          },
+          "invoice_number": {
+            "type": ["string", "null"],
+            "description": "Carrier invoice number, extracted from the document."
+          },
+          "invoice_date": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "Date on the invoice, extracted from the document."
+          },
+          "account_number": {
+            "type": ["string", "null"],
+            "description": "Carrier account number on the invoice."
+          },
+          "billing_period_start": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "Start of the billing period covered by the invoice."
+          },
+          "billing_period_end": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "End of the billing period covered by the invoice."
+          },
+          "currency": {
+            "type": ["string", "null"],
+            "description": "ISO 4217 currency code the invoice is denominated in."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the invoice was uploaded."
+          }
+        }
+      },
+      "InvoiceAudit": {
+        "type": "object",
+        "description": "An audit of a carrier invoice against a contract.",
+        "required": [
+          "id",
+          "contract_id",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "contract_id": {
+            "type": "string",
+            "description": "Contract this invoice was audited against."
+          },
+          "carrier_name": {
+            "type": ["string", "null"],
+            "description": "Carrier name (denormalized from the contract for convenience)."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PENDING", "INGESTING", "AUDITING", "COMPLETE", "FAILED"],
+            "description": "Audit lifecycle state.\n\n- `PENDING`: queued for processing.\n- `INGESTING`: parsing the invoice file.\n- `AUDITING`: running audit rules.\n- `COMPLETE`: line items and findings are available.\n- `FAILED`: audit failed; see `status_reason`."
+          },
+          "status_reason": {
+            "type": ["string", "null"],
+            "description": "Explanation when `status=FAILED`."
+          },
+          "total_line_items": {
+            "type": ["integer", "null"],
+            "description": "Total line items extracted from the invoice. `null` until ingestion completes."
+          },
+          "completed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the audit reached a terminal state (`COMPLETE` or `FAILED`)."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the audit was created."
+          },
+          "file": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/InvoiceAuditFile" },
+              { "type": "null" }
+            ],
+            "description": "Metadata about the uploaded invoice file."
+          }
+        }
+      },
+      "InvoiceLineItem": {
+        "type": "object",
+        "description": "A single charge from the carrier invoice — a rate, surcharge, or adjustment applied to one tracking number.",
+        "required": [
+          "id",
+          "audit_id",
+          "tracking_number",
+          "charge_type",
+          "amount",
+          "has_finding",
+          "created_at"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "audit_id": { "type": "string" },
+          "tracking_number": {
+            "type": "string",
+            "description": "Carrier tracking number for the shipment."
+          },
+          "charge_description": {
+            "type": ["string", "null"],
+            "description": "Free-text charge description from the invoice (e.g. `\"Fuel surcharge\"`)."
+          },
+          "charge_type": {
+            "type": "string",
+            "enum": ["RATE", "SURCHARGE", "ADJUSTMENT"],
+            "description": "Kind of charge.\n\n- `RATE`: base shipping rate.\n- `SURCHARGE`: add-on fee.\n- `ADJUSTMENT`: correction or credit."
+          },
+          "service_type": {
+            "type": ["string", "null"],
+            "description": "Carrier service code applied to the shipment."
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount billed, as a decimal string.",
+            "example": "12.50"
+          },
+          "weight": {
+            "type": ["string", "null"],
+            "description": "Actual weight in kg, as a decimal string."
+          },
+          "billed_weight": {
+            "type": ["string", "null"],
+            "description": "Billed (chargeable) weight in kg, as a decimal string. May differ from `weight` due to dimensional weight."
+          },
+          "container_type": {
+            "type": ["string", "null"],
+            "description": "Container or packaging for the shipment."
+          },
+          "origin_country": {
+            "type": ["string", "null"],
+            "description": "ISO 3166-1 alpha-2 origin country code."
+          },
+          "destination_country": {
+            "type": ["string", "null"],
+            "description": "ISO 3166-1 alpha-2 destination country code."
+          },
+          "zone": {
+            "type": ["string", "null"],
+            "description": "Carrier zone applied to the shipment, if any."
+          },
+          "has_finding": {
+            "type": "boolean",
+            "description": "Whether the audit produced at least one finding for this line item."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AuditFinding": {
+        "type": "object",
+        "description": "A discrepancy detected during the audit between what the carrier billed and what the contract specifies.",
+        "required": [
+          "id",
+          "audit_id",
+          "line_item_id",
+          "tracking_number",
+          "type",
+          "description",
+          "charge_type",
+          "amount",
+          "excluded",
+          "created_at"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "audit_id": { "type": "string" },
+          "line_item_id": {
+            "type": "string",
+            "description": "Line item this finding is attached to."
+          },
+          "tracking_number": {
+            "type": "string",
+            "description": "Tracking number of the shipment the finding relates to."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "RATE_MISMATCH",
+              "RATE_NOT_FOUND",
+              "SURCHARGE_MISMATCH",
+              "SURCHARGE_NOT_FOUND",
+              "WAIVED_SURCHARGE_BILLED",
+              "DUPLICATE_CHARGE"
+            ],
+            "description": "The kind of discrepancy.\n\n- `RATE_MISMATCH`: billed rate ≠ contracted rate.\n- `RATE_NOT_FOUND`: no rate in the contract matches the shipment.\n- `SURCHARGE_MISMATCH`: billed surcharge ≠ contracted surcharge.\n- `SURCHARGE_NOT_FOUND`: surcharge billed but not present in the contract.\n- `WAIVED_SURCHARGE_BILLED`: a surcharge marked as waived in the contract was charged anyway.\n- `DUPLICATE_CHARGE`: the same charge appears more than once for the same shipment."
+          },
+          "expected_value": {
+            "description": "The value the contract specifies. Shape depends on `type` (e.g. `{ \"rate\": \"10.00\", \"currency\": \"EUR\" }` for `RATE_MISMATCH`)."
+          },
+          "actual_value": {
+            "description": "The value the carrier billed. Shape depends on `type`."
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable explanation of the finding."
+          },
+          "charge_type": {
+            "type": "string",
+            "enum": ["RATE", "SURCHARGE", "ADJUSTMENT"],
+            "description": "Kind of charge the finding is about (denormalized from the line item)."
+          },
+          "charge_description": {
+            "type": ["string", "null"],
+            "description": "Charge description from the invoice (denormalized from the line item)."
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount billed for the line item, as a decimal string."
+          },
+          "service_type": {
+            "type": ["string", "null"],
+            "description": "Carrier service code (denormalized from the line item)."
+          },
+          "auditor": {
+            "type": "string",
+            "description": "Name of the audit rule that produced this finding."
+          },
+          "confidence": {
+            "type": "string",
+            "description": "Confidence level reported by the auditor (e.g. `HIGH`, `MEDIUM`, `LOW`)."
+          },
+          "excluded": {
+            "type": "boolean",
+            "description": "Whether this finding has been marked as known/expected by the customer and should be excluded from active findings."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

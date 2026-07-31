@@ -1,20 +1,98 @@
 aid: opereit
 name: Opereit
-description: Opereit is a company surfaced as a portfolio company of seedcamp and added to the API Evangelist
-  network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Opereit is a Barcelona-based logistics technology company building AI agents
+  that audit, claim, and recover logistics costs autonomously. Its agents detect
+  carrier invoice discrepancies, identify lost and damaged shipments, and file
+  carrier claims end to end with no human in the loop. The public Opereit Invoice
+  Auditing API lets developers upload carrier contracts (rate cards and surcharges
+  are extracted asynchronously), audit incoming carrier invoices against those
+  contracts, and retrieve the resulting line items and discrepancy findings —
+  building automated cost-recovery workflows without the dashboard. Opereit raised
+  a ~$2.5M pre-seed round led by Seedcamp and Yellow in 2026.
 url: https://raw.githubusercontent.com/api-evangelist/opereit/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - seedcamp
-x-tier: stub
-x-tier-reason: portfolio-lead
+- yellow
+x-tier: active
+x-tier-reason: public-api
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://www.opereit.ai/favicon.png
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-20'
 tags:
 - Company
-apis: []
+- Logistics
+- Supply Chain
+- Shipping
+- Invoice Auditing
+- Cost Recovery
+- Freight Audit
+- Artificial Intelligence
+- AI Agents
+apis:
+- aid: opereit:opereit-contracts-api
+  name: Opereit Contracts API
+  description: The Contracts API from Opereit — 3 operation(s) for contracts.
+  humanURL: https://developers.opereit.ai/api-reference/introduction
+  baseURL: https://api.opereit.com
+  tags:
+  - Contracts
+  properties:
+  - type: OpenAPI
+    url: openapi/opereit-contracts-api-openapi.yml
+  - type: Authentication
+    url: authentication/opereit-authentication.yml
+  - type: Conventions
+    url: conventions/opereit-conventions.yml
+  - type: ErrorCatalog
+    url: errors/opereit-problem-types.yml
+  - type: Lifecycle
+    url: lifecycle/opereit-lifecycle.yml
+  - type: DataModel
+    url: data-model/opereit-data-model.yml
+  - type: Conformance
+    url: conformance/opereit-conformance.yml
+  - type: Arazzo
+    url: arazzo/opereit-audit-invoice.yml
+- aid: opereit:opereit-invoice-audits-api
+  name: Opereit Invoice Audits API
+  description: The Invoice Audits API from Opereit — 3 operation(s) for invoice audits.
+  humanURL: https://developers.opereit.ai/api-reference/introduction
+  baseURL: https://api.opereit.com
+  tags:
+  - Invoice Audits
+  properties:
+  - type: OpenAPI
+    url: openapi/opereit-invoice-audits-api-openapi.yml
+  - type: Authentication
+    url: authentication/opereit-authentication.yml
+  - type: Conventions
+    url: conventions/opereit-conventions.yml
+  - type: ErrorCatalog
+    url: errors/opereit-problem-types.yml
+  - type: Lifecycle
+    url: lifecycle/opereit-lifecycle.yml
+  - type: DataModel
+    url: data-model/opereit-data-model.yml
+  - type: Conformance
+    url: conformance/opereit-conformance.yml
+  - type: Arazzo
+    url: arazzo/opereit-audit-invoice.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -22,4 +100,31 @@ maintainers:
   email: info@apis.io
 common:
 - type: Website
-  url: http://opereit.ai
+  url: https://www.opereit.ai
+- type: DeveloperPortal
+  url: https://developers.opereit.ai
+- type: Documentation
+  url: https://developers.opereit.ai/api-reference/introduction
+- type: APIReference
+  url: https://developers.opereit.ai/api-reference
+- type: GettingStarted
+  url: https://developers.opereit.ai/api-reference/introduction
+- type: Login
+  url: https://dashboard.opereit.ai
+- type: LinkedIn
+  url: https://www.linkedin.com/company/opereit
+- type: Authentication
+  url: authentication/opereit-authentication.yml
+- type: DomainSecurity
+  url: security/opereit-domain-security.yml
+- type: MCPServer
+  url: mcp/opereit-mcp.yml
+- type: LLMsTxt
+  url: llms/opereit-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-07-20'
+  status: enriched
+  artifacts_added: 17
+  pass: local-v1

@@ -1,0 +1,62 @@
+generated: '2026-07-20'
+method: searched
+source: https://developers.opereit.ai/api-reference/introduction
+docs: https://developers.opereit.ai/api-reference/introduction
+summary: >-
+  Cross-cutting request/response semantics for the Opereit Invoice Auditing API,
+  captured from the docs introduction and derived from the OpenAPI. JSON bodies,
+  snake_case fields, HTTP Basic auth, and cursor pagination. No documented
+  idempotency-key contract and no rate-limit signaling documented at this time.
+authentication:
+  style: http-basic
+  detail: >-
+    HTTP Basic Auth with an API key pair (key_id:key_secret). The secret is
+    prefixed opr_live_ and shown once at creation. See authentication/opereit-authentication.yml.
+  header: Authorization
+serialization:
+  content_type: application/json
+  upload_content_type: multipart/form-data
+  field_case: snake_case
+  timestamps: ISO 8601 (e.g. 2026-04-29T10:15:00Z)
+  dates: 'YYYY-MM-DD'
+  numeric_precision: >-
+    Monetary amounts, weights, and rates are returned as decimal strings to
+    preserve precision.
+pagination:
+  style: cursor
+  request_params:
+    - limit   # integer 1..100, default 50
+    - cursor  # opaque, omit on first request
+  response_envelope:
+    shape: '{ data: [...], pagination: { cursor, has_more } }'
+    next_cursor_field: pagination.cursor
+    has_more_field: pagination.has_more
+    null_cursor_means: no more items
+idempotency:
+  supported: false
+  note: >-
+    No Idempotency-Key header or idempotency contract is documented. Write
+    operations (uploadContract, createInvoiceAudit) are asynchronous and create
+    a new resource each call.
+metadata:
+  supported: false
+request_tracing:
+  request_id_header: null
+  note: No request-id / correlation header is documented.
+versioning:
+  scheme: uri-path
+  current: v1
+  detail: All endpoints are served under a /v1 path prefix.
+error_envelope:
+  shape: '{ "error": "Human-readable message" }'
+  format: single-field JSON (not RFC 9457 problem+json)
+  see: errors/opereit-problem-types.yml
+rate_limiting:
+  documented: false
+  headers: []
+base_url:
+  production: https://api.opereit.com
+  note: >-
+    The OpenAPI servers[] and the curl example use https://api.opereit.com; the
+    docs "Base URL" prose lists https://api.obsydianai.com (Obsydian AI is the
+    operating entity). Treat api.opereit.com as canonical per the spec.

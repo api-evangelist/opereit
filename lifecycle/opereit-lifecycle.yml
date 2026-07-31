@@ -1,0 +1,19 @@
+generated: '2026-07-20'
+method: searched
+source: https://developers.opereit.ai/api-reference/introduction
+versioning:
+  scheme: uri-path
+  current: v1
+  docs: https://developers.opereit.ai/api-reference/introduction
+deprecation:
+  policy_url: null
+  sunset_header: false
+  note: No deprecation policy or RFC 8594 Sunset/Deprecation header support documented.
+sla:
+  url: null
+  uptime_target: null
+status_page: null
+deprecated_operations: []
+notes: >-
+  Early-stage API (v1.0.0). Webhooks are documented as "coming soon"; today
+  contract/audit progress is observed by polling until status=COMPLETE/ACTIVE.

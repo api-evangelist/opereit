@@ -1,0 +1,7 @@
+generated: '2026-07-20'
+method: derived
+workflows:
+  - file: opereit-audit-invoice.yml
+    workflowId: auditCarrierInvoice
+    title: Audit a carrier invoice against a contract
+    summary: Upload a contract, audit an invoice against it, and read the findings.

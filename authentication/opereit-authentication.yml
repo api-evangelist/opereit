@@ -1,0 +1,13 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/opereit-invoice-auditing-openapi.json
+summary:
+  types:
+  - http
+schemes:
+- name: apiKey
+  type: http
+  scheme: basic
+  description: 'HTTP Basic Auth using your API key. Send `Authorization: Basic base64(key_id:key_secret)`.'
+  sources:
+  - openapi/opereit-invoice-auditing-openapi.json

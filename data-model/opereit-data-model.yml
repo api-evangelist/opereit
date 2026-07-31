@@ -1,0 +1,76 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/opereit-invoice-auditing-openapi.json
+entities:
+  - name: Contract
+    id: id
+    description: A carrier contract; rates and surcharges are extracted asynchronously.
+    status_enum: [PROCESSING, ACTIVE, EXPIRED, FAILED]
+  - name: ContractRate
+    id: id
+    description: A single rate-card entry (origin, destination, service, weight) extracted from a contract.
+  - name: ContractSurcharge
+    id: id
+    description: A surcharge (fuel, residential, peak-season, etc.) extracted from a contract.
+  - name: InvoiceAudit
+    id: id
+    description: An audit of a carrier invoice against a contract.
+    status_enum: [PENDING, INGESTING, AUDITING, COMPLETE, FAILED]
+  - name: InvoiceAuditFile
+    id: id
+    description: Metadata about the uploaded invoice document.
+  - name: InvoiceLineItem
+    id: id
+    description: A single charge (RATE|SURCHARGE|ADJUSTMENT) applied to one tracking number.
+  - name: AuditFinding
+    id: id
+    description: A discrepancy detected between the carrier invoice and the contract.
+relationships:
+  - from: ContractRate
+    to: Contract
+    kind: belongs_to
+    via: contract_id
+  - from: ContractSurcharge
+    to: Contract
+    kind: belongs_to
+    via: contract_id
+  - from: Contract
+    to: ContractRate
+    kind: has_many
+    via: contract_id
+  - from: Contract
+    to: ContractSurcharge
+    kind: has_many
+    via: contract_id
+  - from: InvoiceAudit
+    to: Contract
+    kind: belongs_to
+    via: contract_id
+  - from: InvoiceAudit
+    to: InvoiceAuditFile
+    kind: has_one
+    via: file
+  - from: InvoiceLineItem
+    to: InvoiceAudit
+    kind: belongs_to
+    via: audit_id
+  - from: InvoiceAudit
+    to: InvoiceLineItem
+    kind: has_many
+    via: audit_id
+  - from: AuditFinding
+    to: InvoiceAudit
+    kind: belongs_to
+    via: audit_id
+  - from: AuditFinding
+    to: InvoiceLineItem
+    kind: belongs_to
+    via: line_item_id
+  - from: InvoiceLineItem
+    to: AuditFinding
+    kind: has_many
+    via: line_item_id
+id_conventions:
+  note: >-
+    IDs are opaque strings; no documented prefix scheme. Tracking numbers link
+    line items and findings within an audit.
