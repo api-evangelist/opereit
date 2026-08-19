@@ -2,36 +2,41 @@ generated: '2026-07-20'
 method: derived
 status: candidate
 source: openapi/opereit-invoice-auditing-openapi.json
-note: >-
-  No official hosted/remote MCP server is published by Opereit. This is a
-  candidate tool list derived one-to-one from the OpenAPI operations, offered as
-  a starting point for an MCP wrapper. Not an authoritative provider artifact.
+note: No official hosted/remote MCP server is published by Opereit. This is a candidate tool list derived
+  one-to-one from the OpenAPI operations, offered as a starting point for an MCP wrapper. Not an authoritative
+  provider artifact.
 server:
   name: opereit
   transport: http
   url: null
 tools:
-  - name: upload_contract
-    description: Upload a carrier contract document for asynchronous rate/surcharge extraction.
-    source_operation: openapi/opereit-invoice-auditing-openapi.json#uploadContract
-  - name: list_contracts
-    description: List contracts uploaded by your organization.
-    source_operation: openapi/opereit-invoice-auditing-openapi.json#listContracts
-  - name: list_contract_rates
-    description: List rate-card entries extracted from a contract.
-    source_operation: openapi/opereit-invoice-auditing-openapi.json#listContractRates
-  - name: list_contract_surcharges
-    description: List surcharges extracted from a contract.
-    source_operation: openapi/opereit-invoice-auditing-openapi.json#listContractSurcharges
-  - name: create_invoice_audit
-    description: Upload a carrier invoice and audit it against an existing contract.
-    source_operation: openapi/opereit-invoice-auditing-openapi.json#createInvoiceAudit
-  - name: list_invoice_audits
-    description: List invoice audits.
-    source_operation: openapi/opereit-invoice-auditing-openapi.json#listInvoiceAudits
-  - name: list_invoice_audit_line_items
-    description: List line items extracted from an audited invoice.
-    source_operation: openapi/opereit-invoice-auditing-openapi.json#listInvoiceAuditLineItems
-  - name: list_invoice_audit_findings
-    description: List findings (discrepancies) detected by an audit.
-    source_operation: openapi/opereit-invoice-auditing-openapi.json#listInvoiceAuditFindings
+- name: upload_contract
+  description: Upload a carrier contract document for asynchronous rate/surcharge extraction.
+  source_operation: openapi/opereit-invoice-auditing-openapi.json#uploadContract
+- name: list_contracts
+  description: List contracts uploaded by your organization.
+  source_operation: openapi/opereit-invoice-auditing-openapi.json#listContracts
+- name: list_contract_rates
+  description: List rate-card entries extracted from a contract.
+  source_operation: openapi/opereit-invoice-auditing-openapi.json#listContractRates
+- name: list_contract_surcharges
+  description: List surcharges extracted from a contract.
+  source_operation: openapi/opereit-invoice-auditing-openapi.json#listContractSurcharges
+- name: create_invoice_audit
+  description: Upload a carrier invoice and audit it against an existing contract.
+  source_operation: openapi/opereit-invoice-auditing-openapi.json#createInvoiceAudit
+- name: list_invoice_audits
+  description: List invoice audits.
+  source_operation: openapi/opereit-invoice-auditing-openapi.json#listInvoiceAudits
+- name: list_invoice_audit_line_items
+  description: List line items extracted from an audited invoice.
+  source_operation: openapi/opereit-invoice-auditing-openapi.json#listInvoiceAuditLineItems
+- name: list_invoice_audit_findings
+  description: List findings (discrepancies) detected by an audit.
+  source_operation: openapi/opereit-invoice-auditing-openapi.json#listInvoiceAuditFindings
+deployment:
+  mode: none
+  verified: derived
+  tools: 8
+  checked: '2026-08-12'
+  source: catalog MCP census

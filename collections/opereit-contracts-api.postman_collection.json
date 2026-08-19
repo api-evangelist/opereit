@@ -1,0 +1,1239 @@
+{
+  "item": [
+    {
+      "id": "76437d16-05d0-4334-afe9-a54187167270",
+      "name": "Contracts",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "71bfc61c-e31a-4e20-b36d-099055d99b72",
+          "name": "Upload a carrier contract",
+          "request": {
+            "name": "Upload a carrier contract",
+            "description": {
+              "content": "Upload a carrier contract document. Opereit asynchronously extracts rate cards and surcharges from the file. The contract is created with `status=PROCESSING`; it transitions to `ACTIVE` once extraction completes (or `FAILED` if extraction errors out).\n\nAccepted file formats: PDF, PNG, JPEG, CSV, XLS, XLSX.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "contracts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "(Required) The contract document. Accepted MIME types: `application/pdf`, `image/png`, `image/jpeg`, `text/csv`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`."
+                },
+                {
+                  "key": "carrier_name",
+                  "value": "<string>",
+                  "type": "text",
+                  "description": "(Required) The carrier this contract belongs to (e.g. `UPS`, `FedEx`, `DHL Express`)."
+                },
+                {
+                  "key": "signing_date",
+                  "value": "<date>",
+                  "type": "text",
+                  "description": "(Required) Date the contract was signed, in `YYYY-MM-DD` format."
+                },
+                {
+                  "key": "contract_number",
+                  "value": "<string>",
+                  "type": "text",
+                  "description": "Optional carrier-issued contract number."
+                },
+                {
+                  "key": "account_number",
+                  "value": "<string>",
+                  "type": "text",
+                  "description": "Optional carrier account number this contract applies to."
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ab01f85d-51c8-4343-a06d-99dbf85d07f1",
+              "name": "Contract created. Extraction runs asynchronously.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The contract document. Accepted MIME types: `application/pdf`, `image/png`, `image/jpeg`, `text/csv`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`.",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) The carrier this contract belongs to (e.g. `UPS`, `FedEx`, `DHL Express`).",
+                        "type": "text/plain"
+                      },
+                      "key": "carrier_name",
+                      "value": "<string>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) Date the contract was signed, in `YYYY-MM-DD` format.",
+                        "type": "text/plain"
+                      },
+                      "key": "signing_date",
+                      "value": "<date>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Optional carrier-issued contract number.",
+                        "type": "text/plain"
+                      },
+                      "key": "contract_number",
+                      "value": "<string>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Optional carrier account number this contract applies to.",
+                        "type": "text/plain"
+                      },
+                      "key": "account_number",
+                      "value": "<string>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"contract\": {\n    \"id\": \"string\",\n    \"carrier_name\": \"DHL Express\",\n    \"signing_date\": \"2000-03-04\",\n    \"status\": \"EXPIRED\",\n    \"rate_count\": 6898,\n    \"surcharge_count\": 990,\n    \"created_at\": \"1984-01-09T17:18:52.280Z\",\n    \"contract_number\": \"string\",\n    \"account_number\": \"string\",\n    \"effective_date\": \"1964-03-17\",\n    \"expiration_date\": \"1947-07-28\",\n    \"status_reason\": \"string\",\n    \"file_url\": \"https://aqGdoVDIETeRzfiJsuJ.lgssRrjRgNgSvFNUwibWnh0o0BOkUDXaRg\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d1b095d4-2b1f-454d-b42d-335a2075867d",
+              "name": "The request was malformed or failed validation.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The contract document. Accepted MIME types: `application/pdf`, `image/png`, `image/jpeg`, `text/csv`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`.",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) The carrier this contract belongs to (e.g. `UPS`, `FedEx`, `DHL Express`).",
+                        "type": "text/plain"
+                      },
+                      "key": "carrier_name",
+                      "value": "<string>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) Date the contract was signed, in `YYYY-MM-DD` format.",
+                        "type": "text/plain"
+                      },
+                      "key": "signing_date",
+                      "value": "<date>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Optional carrier-issued contract number.",
+                        "type": "text/plain"
+                      },
+                      "key": "contract_number",
+                      "value": "<string>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Optional carrier account number this contract applies to.",
+                        "type": "text/plain"
+                      },
+                      "key": "account_number",
+                      "value": "<string>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "250ac007-e5bb-41f8-8bed-141d75d5b1cc",
+              "name": "Authentication is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The contract document. Accepted MIME types: `application/pdf`, `image/png`, `image/jpeg`, `text/csv`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`.",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) The carrier this contract belongs to (e.g. `UPS`, `FedEx`, `DHL Express`).",
+                        "type": "text/plain"
+                      },
+                      "key": "carrier_name",
+                      "value": "<string>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) Date the contract was signed, in `YYYY-MM-DD` format.",
+                        "type": "text/plain"
+                      },
+                      "key": "signing_date",
+                      "value": "<date>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Optional carrier-issued contract number.",
+                        "type": "text/plain"
+                      },
+                      "key": "contract_number",
+                      "value": "<string>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Optional carrier account number this contract applies to.",
+                        "type": "text/plain"
+                      },
+                      "key": "account_number",
+                      "value": "<string>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "25769f8d-6d87-4c65-9ab4-ed5c70cb9d5b",
+          "name": "List contracts",
+          "request": {
+            "name": "List contracts",
+            "description": {
+              "content": "Returns a cursor-paginated list of contracts uploaded by your organization.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "contracts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of items to return per request."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous response. Omit on the first request."
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "Filter by contract status."
+                },
+                {
+                  "disabled": false,
+                  "key": "carrier_name",
+                  "value": "<string>",
+                  "description": "Filter by carrier name (case-insensitive exact match)."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "374028ba-aa13-4db4-85b2-ac935321ef50",
+              "name": "Cursor-paginated list of contracts.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "carrier_name",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"carrier_name\": \"DHL Express\",\n      \"signing_date\": \"2020-05-06\",\n      \"status\": \"PROCESSING\",\n      \"rate_count\": 7743,\n      \"surcharge_count\": 6380,\n      \"created_at\": \"2021-05-16T09:44:15.212Z\",\n      \"contract_number\": \"string\",\n      \"account_number\": \"string\",\n      \"effective_date\": \"2002-09-09\",\n      \"expiration_date\": \"1970-11-19\",\n      \"status_reason\": \"string\",\n      \"file_url\": \"http://xzhE.sxTIlIEQJlBBOS3mgw\"\n    },\n    {\n      \"id\": \"string\",\n      \"carrier_name\": \"DHL Express\",\n      \"signing_date\": \"1961-09-05\",\n      \"status\": \"FAILED\",\n      \"rate_count\": 5252,\n      \"surcharge_count\": 1561,\n      \"created_at\": \"1984-05-11T08:52:37.675Z\",\n      \"contract_number\": \"string\",\n      \"account_number\": \"string\",\n      \"effective_date\": \"1979-08-10\",\n      \"expiration_date\": \"2012-06-10\",\n      \"status_reason\": \"string\",\n      \"file_url\": \"https://ABTgcaMZlmHQwvj.xqmqrTt8M6JW7ydsbwvxqRkrjHDmKZq6fBzh3nsBnVb\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"string\",\n    \"has_more\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c9f282c7-c60e-4417-85c5-dbbd4be9bdc2",
+              "name": "Authentication is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "carrier_name",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "fc47120c-e936-4b50-a0dc-eab62a671a86",
+          "name": "List contract rates",
+          "request": {
+            "name": "List contract rates",
+            "description": {
+              "content": "Returns a cursor-paginated list of rate-card entries extracted from a contract. Each entry represents a single (origin, destination, service, weight) rate.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "contracts",
+                ":contract_id",
+                "rates"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of items to return per request."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous response. Omit on the first request."
+                },
+                {
+                  "disabled": false,
+                  "key": "origin_country",
+                  "value": "<string>",
+                  "description": "Filter by ISO 3166-1 alpha-2 origin country code."
+                },
+                {
+                  "disabled": false,
+                  "key": "destination_country",
+                  "value": "<string>",
+                  "description": "Filter by ISO 3166-1 alpha-2 destination country code."
+                },
+                {
+                  "disabled": false,
+                  "key": "service_type",
+                  "value": "<string>",
+                  "description": "Filter by carrier service code (e.g. `EXPRESS_WORLDWIDE`)."
+                },
+                {
+                  "disabled": false,
+                  "key": "weight_min",
+                  "value": "<number>",
+                  "description": "Return only rates whose weight band overlaps with weight ≥ this value (kg)."
+                },
+                {
+                  "disabled": false,
+                  "key": "weight_max",
+                  "value": "<number>",
+                  "description": "Return only rates whose weight band overlaps with weight ≤ this value (kg)."
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "contract_id",
+                  "description": "(Required) ID of the contract."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "682489c5-a2b9-4be6-a6ad-5d8a0cbb3ec6",
+              "name": "Cursor-paginated rate-card entries.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts",
+                    ":contract_id",
+                    "rates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "origin_country",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "destination_country",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "service_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "weight_min",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "weight_max",
+                      "value": "<number>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "contract_id",
+                      "description": "(Required) ID of the contract."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"contract_id\": \"string\",\n      \"origin_country\": \"string\",\n      \"destination_country\": \"string\",\n      \"service_type\": \"EXPRESS_WORLDWIDE\",\n      \"container_type\": \"PARCEL\",\n      \"weight_mode\": \"FIXED\",\n      \"rate_type\": \"FLAT\",\n      \"rate\": \"12.50\",\n      \"currency\": \"EUR\",\n      \"origin_postcode\": \"string\",\n      \"destination_postcode\": \"string\",\n      \"weight\": \"string\",\n      \"weight_min\": \"string\",\n      \"weight_max\": \"string\"\n    },\n    {\n      \"id\": \"string\",\n      \"contract_id\": \"string\",\n      \"origin_country\": \"string\",\n      \"destination_country\": \"string\",\n      \"service_type\": \"EXPRESS_WORLDWIDE\",\n      \"container_type\": \"PARCEL\",\n      \"weight_mode\": \"RANGE\",\n      \"rate_type\": \"FLAT\",\n      \"rate\": \"12.50\",\n      \"currency\": \"EUR\",\n      \"origin_postcode\": \"string\",\n      \"destination_postcode\": \"string\",\n      \"weight\": \"string\",\n      \"weight_min\": \"string\",\n      \"weight_max\": \"string\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"string\",\n    \"has_more\": false\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6e29002a-6a04-4d3b-99e9-36ce943f945d",
+              "name": "Authentication is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts",
+                    ":contract_id",
+                    "rates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "origin_country",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "destination_country",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "service_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "weight_min",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "weight_max",
+                      "value": "<number>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "contract_id",
+                      "description": "(Required) ID of the contract."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b8f1691b-60b3-4f25-9a6d-8dc457a52e51",
+              "name": "The requested resource does not exist.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts",
+                    ":contract_id",
+                    "rates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "origin_country",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "destination_country",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "service_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "weight_min",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "weight_max",
+                      "value": "<number>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "contract_id",
+                      "description": "(Required) ID of the contract."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3c15fbef-af38-4237-b4be-a646b6910934",
+          "name": "List contract surcharges",
+          "request": {
+            "name": "List contract surcharges",
+            "description": {
+              "content": "Returns a cursor-paginated list of surcharges extracted from a contract (fuel, residential delivery, peak-season, etc.).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "contracts",
+                ":contract_id",
+                "surcharges"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of items to return per request."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous response. Omit on the first request."
+                },
+                {
+                  "disabled": false,
+                  "key": "search",
+                  "value": "<string>",
+                  "description": "Free-text search against the surcharge display name."
+                },
+                {
+                  "disabled": false,
+                  "key": "billing_type",
+                  "value": "<string>",
+                  "description": "Filter by how the surcharge is billed."
+                },
+                {
+                  "disabled": false,
+                  "key": "service_type",
+                  "value": "<string>",
+                  "description": "Filter by carrier service code the surcharge applies to."
+                },
+                {
+                  "disabled": false,
+                  "key": "is_waived",
+                  "value": "<boolean>",
+                  "description": "If `true`, returns only surcharges marked as waived in the contract."
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "contract_id",
+                  "description": "(Required) ID of the contract."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d4cd33bf-a74c-4a06-9857-a9ba197ee992",
+              "name": "Cursor-paginated surcharges.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts",
+                    ":contract_id",
+                    "surcharges"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "billing_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "service_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "is_waived",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "contract_id",
+                      "description": "(Required) ID of the contract."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"contract_id\": \"string\",\n      \"slug\": \"fuel\",\n      \"display_name\": \"Fuel surcharge\",\n      \"billing_type\": \"FIXED\",\n      \"value\": \"15.00\",\n      \"currency\": \"EUR\",\n      \"is_waived\": true,\n      \"origin_country\": \"string\",\n      \"destination_country\": \"string\",\n      \"service_type\": \"string\",\n      \"calculation_base\": [\n        \"string\",\n        \"string\"\n      ]\n    },\n    {\n      \"id\": \"string\",\n      \"contract_id\": \"string\",\n      \"slug\": \"fuel\",\n      \"display_name\": \"Fuel surcharge\",\n      \"billing_type\": \"FIXED\",\n      \"value\": \"15.00\",\n      \"currency\": \"EUR\",\n      \"is_waived\": true,\n      \"origin_country\": \"string\",\n      \"destination_country\": \"string\",\n      \"service_type\": \"string\",\n      \"calculation_base\": [\n        \"string\",\n        \"string\"\n      ]\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"string\",\n    \"has_more\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3b68c1ed-fcbc-4371-95a7-8f7f78ed24b6",
+              "name": "Authentication is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts",
+                    ":contract_id",
+                    "surcharges"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "billing_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "service_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "is_waived",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "contract_id",
+                      "description": "(Required) ID of the contract."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "aeaf304d-a7e5-45d2-87bb-2bc5fe9850ad",
+              "name": "The requested resource does not exist.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "contracts",
+                    ":contract_id",
+                    "surcharges"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "search",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "billing_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "service_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "is_waived",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "contract_id",
+                      "description": "(Required) ID of the contract."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.opereit.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{basicAuthUsername}}"
+      },
+      {
+        "key": "password",
+        "value": "{{basicAuthPassword}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "ef23c143-4326-491b-8e85-9b2a6ec33f58",
+    "name": "Opereit Invoice Auditing Contracts API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Public API for the Opereit Invoice Auditing product. Upload carrier contracts, run audits against incoming carrier invoices, and retrieve line items and findings.",
+      "type": "text/plain"
+    }
+  }
+}

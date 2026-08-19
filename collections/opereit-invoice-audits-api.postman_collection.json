@@ -1,0 +1,1152 @@
+{
+  "item": [
+    {
+      "id": "15e259a3-5e81-4494-9637-4b2764e13212",
+      "name": "Invoice Audits",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "4fa37c1d-9461-4a09-846f-a840ecdef20b",
+          "name": "Create an invoice audit",
+          "request": {
+            "name": "Create an invoice audit",
+            "description": {
+              "content": "Upload a carrier invoice and audit it against the rates and surcharges of an existing contract. Returns immediately with `status=PENDING`; auditing runs asynchronously. Poll `GET /v1/invoice-audits` until `status=COMPLETE` to retrieve findings.\n\nAccepted file formats: PDF, CSV.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "invoice-audits"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "(Required) The carrier invoice document. Accepted MIME types: `application/pdf`, `text/csv`."
+                },
+                {
+                  "key": "contract_id",
+                  "value": "<string>",
+                  "type": "text",
+                  "description": "(Required) ID of the contract to audit this invoice against."
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d5406982-0a86-4440-b4fc-b6ed0c8634c5",
+              "name": "Audit created. Auditing runs asynchronously.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The carrier invoice document. Accepted MIME types: `application/pdf`, `text/csv`.",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ID of the contract to audit this invoice against.",
+                        "type": "text/plain"
+                      },
+                      "key": "contract_id",
+                      "value": "<string>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"audit\": {\n    \"id\": \"string\",\n    \"contract_id\": \"string\",\n    \"status\": \"INGESTING\",\n    \"created_at\": \"1973-11-05T00:01:24.312Z\",\n    \"carrier_name\": \"string\",\n    \"status_reason\": \"string\",\n    \"total_line_items\": 2531,\n    \"completed_at\": \"1974-03-31T08:04:56.919Z\",\n    \"file\": {\n      \"id\": \"string\",\n      \"file_url\": \"https://uzxEOar.umnuvchDjt.9zYm3SspFajUVlhNeEJ3.GCdnW-mb1YfLxZNJRFc.LsDb7I18rh\",\n      \"file_name\": \"string\",\n      \"original_file_name\": \"string\",\n      \"created_at\": \"2016-02-21T02:31:54.697Z\",\n      \"file_size_bytes\": 8042,\n      \"invoice_number\": \"string\",\n      \"invoice_date\": \"2007-01-22\",\n      \"account_number\": \"string\",\n      \"billing_period_start\": \"1949-01-20\",\n      \"billing_period_end\": \"2024-09-06\",\n      \"currency\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7fc62363-422b-4b20-9763-520259e8ce20",
+              "name": "The request was malformed or failed validation.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The carrier invoice document. Accepted MIME types: `application/pdf`, `text/csv`.",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ID of the contract to audit this invoice against.",
+                        "type": "text/plain"
+                      },
+                      "key": "contract_id",
+                      "value": "<string>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5e71792b-a500-4880-be15-488d8cc39852",
+              "name": "Authentication is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The carrier invoice document. Accepted MIME types: `application/pdf`, `text/csv`.",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ID of the contract to audit this invoice against.",
+                        "type": "text/plain"
+                      },
+                      "key": "contract_id",
+                      "value": "<string>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "92a0f2ae-6d75-43f7-b82d-788697db6c47",
+              "name": "The requested resource does not exist.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The carrier invoice document. Accepted MIME types: `application/pdf`, `text/csv`.",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ID of the contract to audit this invoice against.",
+                        "type": "text/plain"
+                      },
+                      "key": "contract_id",
+                      "value": "<string>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e3174e3c-20fd-4e81-92fa-776e8b267b76",
+          "name": "List invoice audits",
+          "request": {
+            "name": "List invoice audits",
+            "description": {
+              "content": "Returns a cursor-paginated list of invoice audits.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "invoice-audits"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of items to return per request."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous response. Omit on the first request."
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "Filter by audit status."
+                },
+                {
+                  "disabled": false,
+                  "key": "contract_id",
+                  "value": "<string>",
+                  "description": "Filter by the contract used for the audit."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c2bbb402-3f13-4930-a27f-d35cead67e5a",
+              "name": "Cursor-paginated list of audits.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "contract_id",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"contract_id\": \"string\",\n      \"status\": \"FAILED\",\n      \"created_at\": \"2024-11-12T07:29:46.822Z\",\n      \"carrier_name\": \"string\",\n      \"status_reason\": \"string\",\n      \"total_line_items\": 5604,\n      \"completed_at\": \"2012-09-26T13:57:24.312Z\",\n      \"file\": {\n        \"id\": \"string\",\n        \"file_url\": \"http://nMrqjneHAKLMm.nijR9yMVwGnm1q4Ao,0bPJDgAlD.ll7fwRKCqbqqSk-\",\n        \"file_name\": \"string\",\n        \"original_file_name\": \"string\",\n        \"created_at\": \"1991-03-02T01:39:44.565Z\",\n        \"file_size_bytes\": 2595,\n        \"invoice_number\": \"string\",\n        \"invoice_date\": \"1976-05-29\",\n        \"account_number\": \"string\",\n        \"billing_period_start\": \"1951-11-26\",\n        \"billing_period_end\": \"1956-10-10\",\n        \"currency\": \"string\"\n      }\n    },\n    {\n      \"id\": \"string\",\n      \"contract_id\": \"string\",\n      \"status\": \"PENDING\",\n      \"created_at\": \"2000-05-18T03:07:05.504Z\",\n      \"carrier_name\": \"string\",\n      \"status_reason\": \"string\",\n      \"total_line_items\": 4861,\n      \"completed_at\": \"1946-10-14T04:31:49.629Z\",\n      \"file\": {\n        \"id\": \"string\",\n        \"file_url\": \"https://vpMFHOnRFYmlOxkwwyzcXg.yvyavZuoAhB0MwqBltdDktw\",\n        \"file_name\": \"string\",\n        \"original_file_name\": \"string\",\n        \"created_at\": \"1950-06-19T23:22:15.532Z\",\n        \"file_size_bytes\": 7927,\n        \"invoice_number\": \"string\",\n        \"invoice_date\": \"1975-10-05\",\n        \"account_number\": \"string\",\n        \"billing_period_start\": \"1962-09-25\",\n        \"billing_period_end\": \"1953-07-08\",\n        \"currency\": \"string\"\n      }\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"string\",\n    \"has_more\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fd1ccbfb-93df-4cc2-948d-c3bb40815679",
+              "name": "Authentication is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "contract_id",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f4b31267-6183-4b36-896b-8594bdea84d2",
+          "name": "List invoice audit line items",
+          "request": {
+            "name": "List invoice audit line items",
+            "description": {
+              "content": "Returns a cursor-paginated list of line items (individual shipment charges) extracted from the invoice. Each line item is a single charge — a rate, surcharge, or adjustment — applied to one tracking number.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "invoice-audits",
+                ":audit_id",
+                "line-items"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of items to return per request."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous response. Omit on the first request."
+                },
+                {
+                  "disabled": false,
+                  "key": "charge_type",
+                  "value": "<string>",
+                  "description": "Filter by the kind of charge."
+                },
+                {
+                  "disabled": false,
+                  "key": "tracking_number",
+                  "value": "<string>",
+                  "description": "Return only line items associated with this tracking number."
+                },
+                {
+                  "disabled": false,
+                  "key": "has_finding",
+                  "value": "<boolean>",
+                  "description": "If `true`, return only line items that have at least one finding."
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "audit_id",
+                  "description": "(Required) ID of the invoice audit."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "28a68201-5710-4a8b-91a8-e1fbe1d85d1e",
+              "name": "Cursor-paginated list of line items.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits",
+                    ":audit_id",
+                    "line-items"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "charge_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tracking_number",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "has_finding",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "audit_id",
+                      "description": "(Required) ID of the invoice audit."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"audit_id\": \"string\",\n      \"tracking_number\": \"string\",\n      \"charge_type\": \"RATE\",\n      \"amount\": \"12.50\",\n      \"has_finding\": true,\n      \"created_at\": \"1955-07-23T02:04:40.599Z\",\n      \"charge_description\": \"string\",\n      \"service_type\": \"string\",\n      \"weight\": \"string\",\n      \"billed_weight\": \"string\",\n      \"container_type\": \"string\",\n      \"origin_country\": \"string\",\n      \"destination_country\": \"string\",\n      \"zone\": \"string\"\n    },\n    {\n      \"id\": \"string\",\n      \"audit_id\": \"string\",\n      \"tracking_number\": \"string\",\n      \"charge_type\": \"SURCHARGE\",\n      \"amount\": \"12.50\",\n      \"has_finding\": false,\n      \"created_at\": \"1953-03-29T23:56:59.264Z\",\n      \"charge_description\": \"string\",\n      \"service_type\": \"string\",\n      \"weight\": \"string\",\n      \"billed_weight\": \"string\",\n      \"container_type\": \"string\",\n      \"origin_country\": \"string\",\n      \"destination_country\": \"string\",\n      \"zone\": \"string\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"string\",\n    \"has_more\": false\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "36ada7cf-d07e-45a2-9a63-40f127d13695",
+              "name": "Authentication is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits",
+                    ":audit_id",
+                    "line-items"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "charge_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tracking_number",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "has_finding",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "audit_id",
+                      "description": "(Required) ID of the invoice audit."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4263f342-baaa-4cf0-b05b-2d17b954906d",
+              "name": "The requested resource does not exist.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits",
+                    ":audit_id",
+                    "line-items"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "charge_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tracking_number",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "has_finding",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "audit_id",
+                      "description": "(Required) ID of the invoice audit."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "17e04185-ea9d-4131-b24d-4fed277348d9",
+          "name": "List invoice audit findings",
+          "request": {
+            "name": "List invoice audit findings",
+            "description": {
+              "content": "Returns a cursor-paginated list of findings — discrepancies detected between the carrier invoice and the contract. See `AuditFinding.type` for the catalog of finding types.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "invoice-audits",
+                ":audit_id",
+                "findings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of items to return per request."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous response. Omit on the first request."
+                },
+                {
+                  "disabled": false,
+                  "key": "type",
+                  "value": "<string>",
+                  "description": "Filter by finding type."
+                },
+                {
+                  "disabled": false,
+                  "key": "tracking_number",
+                  "value": "<string>",
+                  "description": "Return only findings tied to this tracking number."
+                },
+                {
+                  "disabled": false,
+                  "key": "excluded",
+                  "value": "<boolean>",
+                  "description": "If `false`, return only active (non-excluded) findings. If `true`, return only excluded findings. Omit to return both."
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "audit_id",
+                  "description": "(Required) ID of the invoice audit."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "333a5a6f-9d29-43d1-9e69-cea1b7e1b023",
+              "name": "Cursor-paginated list of findings.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits",
+                    ":audit_id",
+                    "findings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tracking_number",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "excluded",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "audit_id",
+                      "description": "(Required) ID of the invoice audit."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"audit_id\": \"string\",\n      \"line_item_id\": \"string\",\n      \"tracking_number\": \"string\",\n      \"type\": \"SURCHARGE_MISMATCH\",\n      \"description\": \"string\",\n      \"charge_type\": \"SURCHARGE\",\n      \"amount\": \"string\",\n      \"excluded\": true,\n      \"created_at\": \"1984-03-14T10:28:28.060Z\",\n      \"expected_value\": {},\n      \"actual_value\": {},\n      \"charge_description\": \"string\",\n      \"service_type\": \"string\",\n      \"auditor\": \"string\",\n      \"confidence\": \"string\"\n    },\n    {\n      \"id\": \"string\",\n      \"audit_id\": \"string\",\n      \"line_item_id\": \"string\",\n      \"tracking_number\": \"string\",\n      \"type\": \"RATE_NOT_FOUND\",\n      \"description\": \"string\",\n      \"charge_type\": \"ADJUSTMENT\",\n      \"amount\": \"string\",\n      \"excluded\": false,\n      \"created_at\": \"1984-04-18T20:58:36.504Z\",\n      \"expected_value\": {},\n      \"actual_value\": {},\n      \"charge_description\": \"string\",\n      \"service_type\": \"string\",\n      \"auditor\": \"string\",\n      \"confidence\": \"string\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"string\",\n    \"has_more\": false\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a00896fb-ddcb-41b0-999d-0035da87ee4c",
+              "name": "Authentication is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits",
+                    ":audit_id",
+                    "findings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tracking_number",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "excluded",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "audit_id",
+                      "description": "(Required) ID of the invoice audit."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2bef90e9-e1f3-49db-a7d6-0ebd053a032e",
+              "name": "The requested resource does not exist.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "invoice-audits",
+                    ":audit_id",
+                    "findings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tracking_number",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "excluded",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "audit_id",
+                      "description": "(Required) ID of the invoice audit."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: basic",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Basic <credentials>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.opereit.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{basicAuthUsername}}"
+      },
+      {
+        "key": "password",
+        "value": "{{basicAuthPassword}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "be7949cf-7fd4-4019-9084-4783ffa9e0c5",
+    "name": "Opereit Invoice Auditing Contracts Invoice Audits API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Public API for the Opereit Invoice Auditing product. Upload carrier contracts, run audits against incoming carrier invoices, and retrieve line items and findings.",
+      "type": "text/plain"
+    }
+  }
+}

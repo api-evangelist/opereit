@@ -1,0 +1,219 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Opereit Invoice Auditing Contracts API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "basic",
+      "username": "{{username}}",
+      "password": "{{password}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Contracts",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List contracts",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.opereit.com/v1/contracts",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to return per request."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous response. Omit on the first request."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by contract status."
+              },
+              {
+                "name": "carrier_name",
+                "value": "",
+                "type": "query",
+                "description": "Filter by carrier name (case-insensitive exact match)."
+              }
+            ]
+          },
+          "docs": "Returns a cursor-paginated list of contracts uploaded by your organization."
+        },
+        {
+          "info": {
+            "name": "Upload a carrier contract",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.opereit.com/v1/contracts",
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                },
+                {
+                  "name": "carrier_name",
+                  "type": "text",
+                  "value": ""
+                },
+                {
+                  "name": "signing_date",
+                  "type": "text",
+                  "value": ""
+                },
+                {
+                  "name": "contract_number",
+                  "type": "text",
+                  "value": ""
+                },
+                {
+                  "name": "account_number",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Upload a carrier contract document. Opereit asynchronously extracts rate cards and surcharges from the file. The contract is created with `status=PROCESSING`; it transitions to `ACTIVE` once extraction completes (or `FAILED` if extraction errors out).\n\nAccepted file formats: PDF, PNG, JPEG, CSV, XLS, XLSX."
+        },
+        {
+          "info": {
+            "name": "List contract rates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.opereit.com/v1/contracts/:contract_id/rates",
+            "params": [
+              {
+                "name": "contract_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the contract."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to return per request."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous response. Omit on the first request."
+              },
+              {
+                "name": "origin_country",
+                "value": "",
+                "type": "query",
+                "description": "Filter by ISO 3166-1 alpha-2 origin country code."
+              },
+              {
+                "name": "destination_country",
+                "value": "",
+                "type": "query",
+                "description": "Filter by ISO 3166-1 alpha-2 destination country code."
+              },
+              {
+                "name": "service_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by carrier service code (e.g. `EXPRESS_WORLDWIDE`)."
+              },
+              {
+                "name": "weight_min",
+                "value": "",
+                "type": "query",
+                "description": "Return only rates whose weight band overlaps with weight ≥ this value (kg)."
+              },
+              {
+                "name": "weight_max",
+                "value": "",
+                "type": "query",
+                "description": "Return only rates whose weight band overlaps with weight ≤ this value (kg)."
+              }
+            ]
+          },
+          "docs": "Returns a cursor-paginated list of rate-card entries extracted from a contract. Each entry represents a single (origin, destination, service, weight) rate."
+        },
+        {
+          "info": {
+            "name": "List contract surcharges",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.opereit.com/v1/contracts/:contract_id/surcharges",
+            "params": [
+              {
+                "name": "contract_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the contract."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to return per request."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous response. Omit on the first request."
+              },
+              {
+                "name": "search",
+                "value": "",
+                "type": "query",
+                "description": "Free-text search against the surcharge display name."
+              },
+              {
+                "name": "billing_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by how the surcharge is billed."
+              },
+              {
+                "name": "service_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by carrier service code the surcharge applies to."
+              },
+              {
+                "name": "is_waived",
+                "value": "",
+                "type": "query",
+                "description": "If `true`, returns only surcharges marked as waived in the contract."
+              }
+            ]
+          },
+          "docs": "Returns a cursor-paginated list of surcharges extracted from a contract (fuel, residential delivery, peak-season, etc.)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,186 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Opereit Invoice Auditing Contracts Invoice Audits API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "basic",
+      "username": "{{username}}",
+      "password": "{{password}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Invoice Audits",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List invoice audits",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.opereit.com/v1/invoice-audits",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to return per request."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous response. Omit on the first request."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by audit status."
+              },
+              {
+                "name": "contract_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by the contract used for the audit."
+              }
+            ]
+          },
+          "docs": "Returns a cursor-paginated list of invoice audits."
+        },
+        {
+          "info": {
+            "name": "Create an invoice audit",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.opereit.com/v1/invoice-audits",
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                },
+                {
+                  "name": "contract_id",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Upload a carrier invoice and audit it against the rates and surcharges of an existing contract. Returns immediately with `status=PENDING`; auditing runs asynchronously. Poll `GET /v1/invoice-audits` until `status=COMPLETE` to retrieve findings.\n\nAccepted file formats: PDF, CSV."
+        },
+        {
+          "info": {
+            "name": "List invoice audit line items",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.opereit.com/v1/invoice-audits/:audit_id/line-items",
+            "params": [
+              {
+                "name": "audit_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the invoice audit."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to return per request."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous response. Omit on the first request."
+              },
+              {
+                "name": "charge_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by the kind of charge."
+              },
+              {
+                "name": "tracking_number",
+                "value": "",
+                "type": "query",
+                "description": "Return only line items associated with this tracking number."
+              },
+              {
+                "name": "has_finding",
+                "value": "",
+                "type": "query",
+                "description": "If `true`, return only line items that have at least one finding."
+              }
+            ]
+          },
+          "docs": "Returns a cursor-paginated list of line items (individual shipment charges) extracted from the invoice. Each line item is a single charge — a rate, surcharge, or adjustment — applied to one tracking number."
+        },
+        {
+          "info": {
+            "name": "List invoice audit findings",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.opereit.com/v1/invoice-audits/:audit_id/findings",
+            "params": [
+              {
+                "name": "audit_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the invoice audit."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to return per request."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous response. Omit on the first request."
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by finding type."
+              },
+              {
+                "name": "tracking_number",
+                "value": "",
+                "type": "query",
+                "description": "Return only findings tied to this tracking number."
+              },
+              {
+                "name": "excluded",
+                "value": "",
+                "type": "query",
+                "description": "If `false`, return only active (non-excluded) findings. If `true`, return only excluded findings. Omit to return both."
+              }
+            ]
+          },
+          "docs": "Returns a cursor-paginated list of findings — discrepancies detected between the carrier invoice and the contract. See `AuditFinding.type` for the catalog of finding types."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
