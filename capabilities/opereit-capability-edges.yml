@@ -1,0 +1,38 @@
+slug: opereit
+provider: Opereit
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Transportation & Logistics
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 2
+edges:
+- tag: Invoice Audits
+  spec_file: opereit-invoice-audits-api-openapi.yml
+  capability_id: BC-2530.20
+  capability_id_l1: BC-2530
+  capability_name: Freight Audit and Payment Management
+  confidence: 0.92
+  evidence: POST /v1/invoice-audits  createInvoiceAudit  Create an invoice audit; GET /v1/invoice-audits/{audit_id}/findings  List
+    invoice audit findings; schemas InvoiceAudit, InvoiceLineItem, AuditFinding
+  reason: Vendor description states its agents 'detect carrier invoice discrepancies' and the operations
+    run audits of carrier invoices producing line items and findings — precisely Freight Audit and Payment
+    Management on the shipper/forwarder side.
+- tag: Contracts
+  spec_file: opereit-contracts-api-openapi.yml
+  capability_id: BC-2520.20
+  capability_id_l1: BC-2520
+  capability_name: Contract Rate Management
+  confidence: 0.75
+  evidence: POST /v1/contracts  uploadContract  Upload a carrier contract; GET /v1/contracts/{contract_id}/rates  List
+    contract rates; GET /v1/contracts/{contract_id}/surcharges  List contract surcharges
+  reason: The endpoints hold negotiated carrier contract rate cards and surcharges used as the pricing
+    baseline for freight invoice audit — freight rating and tariff management, specifically contract rate
+    maintenance. Some ambiguity with BC-2520.40 (accessorials/surcharges) since surcharges are a first-class
+    object here, hence 0.75.

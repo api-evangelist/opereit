@@ -111,6 +111,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/opereit-capability-edges.yml
+  name: Opereit Business Capability Map
 - type: Overlay
   url: overlays/opereit-invoice-auditing-overlay.yaml
 - type: Website
