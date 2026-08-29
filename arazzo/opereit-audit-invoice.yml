@@ -4,66 +4,69 @@ info:
   version: 1.0.0
   summary: Upload a contract, upload and audit an invoice against it, then read the findings.
 sourceDescriptions:
-  - name: opereit
-    url: ../openapi/opereit-invoice-auditing-openapi.json
-    type: openapi
+- name: contractsApi
+  url: ../openapi/opereit-contracts-api-openapi.yml
+  type: openapi
+- name: invoiceAuditsApi
+  url: ../openapi/opereit-invoice-audits-api-openapi.yml
+  type: openapi
 workflows:
-  - workflowId: auditCarrierInvoice
-    summary: End-to-end carrier invoice audit
-    description: >-
-      Uploads a carrier contract, waits for extraction, creates an invoice audit
-      against it, then retrieves the discrepancy findings.
-    inputs:
-      type: object
-      required: [contract_file, contract_carrier_name, contract_signing_date, invoice_file]
-      properties:
-        contract_file:
-          type: string
-          description: Path/binary of the carrier contract document (PDF, PNG, JPEG, CSV, XLS, XLSX).
-        contract_carrier_name:
-          type: string
-          example: DHL Express
-        contract_signing_date:
-          type: string
-          example: '2026-01-15'
-        invoice_file:
-          type: string
-          description: Path/binary of the carrier invoice (PDF or CSV).
-    steps:
-      - stepId: uploadContract
-        operationId: uploadContract
-        requestBody:
-          contentType: multipart/form-data
-          payload:
-            file: $inputs.contract_file
-            carrier_name: $inputs.contract_carrier_name
-            signing_date: $inputs.contract_signing_date
-        successCriteria:
-          - condition: $statusCode == 201
-        outputs:
-          contract_id: $response.body#/contract/id
-      - stepId: createAudit
-        operationId: createInvoiceAudit
-        requestBody:
-          contentType: multipart/form-data
-          payload:
-            file: $inputs.invoice_file
-            contract_id: $steps.uploadContract.outputs.contract_id
-        successCriteria:
-          - condition: $statusCode == 201
-        outputs:
-          audit_id: $response.body#/audit/id
-      - stepId: listFindings
-        operationId: listInvoiceAuditFindings
-        parameters:
-          - name: audit_id
-            in: path
-            value: $steps.createAudit.outputs.audit_id
-        successCriteria:
-          - condition: $statusCode == 200
-        outputs:
-          findings: $response.body#/data
+- workflowId: auditCarrierInvoice
+  summary: End-to-end carrier invoice audit
+  description: >-
+    Uploads a carrier contract, waits for extraction, creates an invoice audit
+    against it, then retrieves the discrepancy findings.
+  inputs:
+    type: object
+    required: [contract_file, contract_carrier_name, contract_signing_date, invoice_file]
+    properties:
+      contract_file:
+        type: string
+        description: Path/binary of the carrier contract document (PDF, PNG, JPEG, CSV, XLS, XLSX).
+      contract_carrier_name:
+        type: string
+        example: DHL Express
+      contract_signing_date:
+        type: string
+        example: '2026-01-15'
+      invoice_file:
+        type: string
+        description: Path/binary of the carrier invoice (PDF or CSV).
+  steps:
+  - stepId: uploadContract
+    operationId: uploadContract
+    requestBody:
+      contentType: multipart/form-data
+      payload:
+        file: $inputs.contract_file
+        carrier_name: $inputs.contract_carrier_name
+        signing_date: $inputs.contract_signing_date
+    successCriteria:
+    - condition: $statusCode == 201
     outputs:
-      contract_id: $steps.uploadContract.outputs.contract_id
-      audit_id: $steps.createAudit.outputs.audit_id
-      findings: $steps.listFindings.outputs.findings
+      contract_id: $response.body#/contract/id
+  - stepId: createAudit
+    operationId: createInvoiceAudit
+    requestBody:
+      contentType: multipart/form-data
+      payload:
+        file: $inputs.invoice_file
+        contract_id: $steps.uploadContract.outputs.contract_id
+    successCriteria:
+    - condition: $statusCode == 201
+    outputs:
+      audit_id: $response.body#/audit/id
+  - stepId: listFindings
+    operationId: listInvoiceAuditFindings
+    parameters:
+    - name: audit_id
+      in: path
+      value: $steps.createAudit.outputs.audit_id
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      findings: $response.body#/data
+  outputs:
+    contract_id: $steps.uploadContract.outputs.contract_id
+    audit_id: $steps.createAudit.outputs.audit_id
+    findings: $steps.listFindings.outputs.findings
