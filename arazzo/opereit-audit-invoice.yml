@@ -3,6 +3,22 @@ info:
   title: Opereit — audit a carrier invoice against a contract
   version: 1.0.0
   summary: Upload a contract, upload and audit an invoice against it, then read the findings.
+  x-realizes-capability-ids:
+  - BC-2520.20
+  - BC-2530.20
+  x-capability-derivation:
+    method: 'deterministic join: sourceDescriptions -> per-tag OpenAPI -> tag/capability edge. No classification at this step.'
+    min_confidence: 0.7
+    sources:
+    - capability_id: BC-2520.20
+      capability_name: Contract Rate Management
+      spec: opereit-contracts-api-openapi.yml
+      confidence: 0.75
+    - capability_id: BC-2530.20
+      capability_name: Freight Audit and Payment Management
+      spec: opereit-invoice-audits-api-openapi.yml
+      confidence: 0.92
+    model: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities, CC BY 4.0
 sourceDescriptions:
 - name: contractsApi
   url: ../openapi/opereit-contracts-api-openapi.yml
