@@ -1,8 +1,7 @@
 {
   "provider": "opereit",
   "sources": [
-    "opereit-contracts-api-openapi.yml",
-    "opereit-invoice-audits-api-openapi.yml"
+    "_original/opereit-invoice-auditing-openapi.json"
   ],
   "outputs": [
     "opereit-contracts-api-openapi.yml",
@@ -11,6 +10,23 @@
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
-  "skipped": []
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "opereit-invoice-auditing-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "opereit-invoice-auditing-openapi.json: tagged paths POST /v1/contracts -> Contracts",
+    "opereit-invoice-auditing-openapi.json: tagged paths GET /v1/contracts -> Contracts",
+    "opereit-invoice-auditing-openapi.json: tagged paths GET /v1/contracts/{contract_id}/rates -> Contracts",
+    "opereit-invoice-auditing-openapi.json: tagged paths GET /v1/contracts/{contract_id}/surcharges -> Contracts",
+    "opereit-invoice-auditing-openapi.json: tagged paths POST /v1/invoice-audits -> Invoice Audits",
+    "opereit-invoice-auditing-openapi.json: tagged paths GET /v1/invoice-audits -> Invoice Audits",
+    "opereit-invoice-auditing-openapi.json: tagged paths GET /v1/invoice-audits/{audit_id}/line-items -> Invoice Audits",
+    "opereit-invoice-auditing-openapi.json: tagged paths GET /v1/invoice-audits/{audit_id}/findings -> Invoice Audits",
+    "opereit-invoice-auditing-openapi.json: declared missing tag: Contracts",
+    "opereit-invoice-auditing-openapi.json: declared missing tag: Invoice Audits",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "opereit-contracts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "opereit-invoice-audits-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

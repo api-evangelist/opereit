@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Opereit Invoice Auditing Contracts Invoice Audits API
+  title: Opereit Invoice Auditing Invoice Audits API
   description: Public API for the Opereit Invoice Auditing product. Upload carrier contracts, run audits against incoming carrier invoices, and retrieve line items and findings.
   version: 1.0.0
 servers:
@@ -204,85 +204,121 @@ paths:
       tags:
       - Invoice Audits
 components:
+  responses:
+    Unauthorized:
+      description: Authentication is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was malformed or failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    InvoiceAuditFile:
+    Error:
       type: object
-      description: Metadata about the invoice document uploaded for an audit.
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+    AuditFinding:
+      type: object
+      description: A discrepancy detected during the audit between what the carrier billed and what the contract specifies.
       required:
       - id
-      - file_url
-      - file_name
-      - original_file_name
+      - audit_id
+      - line_item_id
+      - tracking_number
+      - type
+      - description
+      - charge_type
+      - amount
+      - excluded
       - created_at
       properties:
         id:
           type: string
-        file_url:
+        audit_id:
           type: string
-          format: uri
-          description: Time-limited URL to download the original invoice file.
-        file_name:
+        line_item_id:
           type: string
-          description: Storage filename.
-        original_file_name:
+          description: Line item this finding is attached to.
+        tracking_number:
           type: string
-          description: Filename as uploaded by the client.
-        file_size_bytes:
-          type:
-          - integer
-          - 'null'
-          description: File size in bytes.
-        invoice_number:
+          description: Tracking number of the shipment the finding relates to.
+        type:
+          type: string
+          enum:
+          - RATE_MISMATCH
+          - RATE_NOT_FOUND
+          - SURCHARGE_MISMATCH
+          - SURCHARGE_NOT_FOUND
+          - WAIVED_SURCHARGE_BILLED
+          - DUPLICATE_CHARGE
+          description: 'The kind of discrepancy.
+
+
+            - `RATE_MISMATCH`: billed rate ≠ contracted rate.
+
+            - `RATE_NOT_FOUND`: no rate in the contract matches the shipment.
+
+            - `SURCHARGE_MISMATCH`: billed surcharge ≠ contracted surcharge.
+
+            - `SURCHARGE_NOT_FOUND`: surcharge billed but not present in the contract.
+
+            - `WAIVED_SURCHARGE_BILLED`: a surcharge marked as waived in the contract was charged anyway.
+
+            - `DUPLICATE_CHARGE`: the same charge appears more than once for the same shipment.'
+        expected_value:
+          description: 'The value the contract specifies. Shape depends on `type` (e.g. `{ "rate": "10.00", "currency": "EUR" }` for `RATE_MISMATCH`).'
+        actual_value:
+          description: The value the carrier billed. Shape depends on `type`.
+        description:
+          type: string
+          description: Human-readable explanation of the finding.
+        charge_type:
+          type: string
+          enum:
+          - RATE
+          - SURCHARGE
+          - ADJUSTMENT
+          description: Kind of charge the finding is about (denormalized from the line item).
+        charge_description:
           type:
           - string
           - 'null'
-          description: Carrier invoice number, extracted from the document.
-        invoice_date:
+          description: Charge description from the invoice (denormalized from the line item).
+        amount:
+          type: string
+          description: Amount billed for the line item, as a decimal string.
+        service_type:
           type:
           - string
           - 'null'
-          format: date
-          description: Date on the invoice, extracted from the document.
-        account_number:
-          type:
-          - string
-          - 'null'
-          description: Carrier account number on the invoice.
-        billing_period_start:
-          type:
-          - string
-          - 'null'
-          format: date
-          description: Start of the billing period covered by the invoice.
-        billing_period_end:
-          type:
-          - string
-          - 'null'
-          format: date
-          description: End of the billing period covered by the invoice.
-        currency:
-          type:
-          - string
-          - 'null'
-          description: ISO 4217 currency code the invoice is denominated in.
+          description: Carrier service code (denormalized from the line item).
+        auditor:
+          type: string
+          description: Name of the audit rule that produced this finding.
+        confidence:
+          type: string
+          description: Confidence level reported by the auditor (e.g. `HIGH`, `MEDIUM`, `LOW`).
+        excluded:
+          type: boolean
+          description: Whether this finding has been marked as known/expected by the customer and should be excluded from active findings.
         created_at:
           type: string
           format: date-time
-          description: When the invoice was uploaded.
-    CursorPagination:
-      type: object
-      required:
-      - cursor
-      - has_more
-      properties:
-        cursor:
-          type:
-          - string
-          - 'null'
-          description: Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items.
-        has_more:
-          type: boolean
-          description: Whether there are more items to fetch beyond the current page.
     InvoiceAudit:
       type: object
       description: An audit of a carrier invoice against a contract.
@@ -430,111 +466,85 @@ components:
         created_at:
           type: string
           format: date-time
-    AuditFinding:
+    CursorPagination:
       type: object
-      description: A discrepancy detected during the audit between what the carrier billed and what the contract specifies.
+      required:
+      - cursor
+      - has_more
+      properties:
+        cursor:
+          type:
+          - string
+          - 'null'
+          description: Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items.
+        has_more:
+          type: boolean
+          description: Whether there are more items to fetch beyond the current page.
+    InvoiceAuditFile:
+      type: object
+      description: Metadata about the invoice document uploaded for an audit.
       required:
       - id
-      - audit_id
-      - line_item_id
-      - tracking_number
-      - type
-      - description
-      - charge_type
-      - amount
-      - excluded
+      - file_url
+      - file_name
+      - original_file_name
       - created_at
       properties:
         id:
           type: string
-        audit_id:
+        file_url:
           type: string
-        line_item_id:
+          format: uri
+          description: Time-limited URL to download the original invoice file.
+        file_name:
           type: string
-          description: Line item this finding is attached to.
-        tracking_number:
+          description: Storage filename.
+        original_file_name:
           type: string
-          description: Tracking number of the shipment the finding relates to.
-        type:
-          type: string
-          enum:
-          - RATE_MISMATCH
-          - RATE_NOT_FOUND
-          - SURCHARGE_MISMATCH
-          - SURCHARGE_NOT_FOUND
-          - WAIVED_SURCHARGE_BILLED
-          - DUPLICATE_CHARGE
-          description: 'The kind of discrepancy.
-
-
-            - `RATE_MISMATCH`: billed rate ≠ contracted rate.
-
-            - `RATE_NOT_FOUND`: no rate in the contract matches the shipment.
-
-            - `SURCHARGE_MISMATCH`: billed surcharge ≠ contracted surcharge.
-
-            - `SURCHARGE_NOT_FOUND`: surcharge billed but not present in the contract.
-
-            - `WAIVED_SURCHARGE_BILLED`: a surcharge marked as waived in the contract was charged anyway.
-
-            - `DUPLICATE_CHARGE`: the same charge appears more than once for the same shipment.'
-        expected_value:
-          description: 'The value the contract specifies. Shape depends on `type` (e.g. `{ "rate": "10.00", "currency": "EUR" }` for `RATE_MISMATCH`).'
-        actual_value:
-          description: The value the carrier billed. Shape depends on `type`.
-        description:
-          type: string
-          description: Human-readable explanation of the finding.
-        charge_type:
-          type: string
-          enum:
-          - RATE
-          - SURCHARGE
-          - ADJUSTMENT
-          description: Kind of charge the finding is about (denormalized from the line item).
-        charge_description:
+          description: Filename as uploaded by the client.
+        file_size_bytes:
+          type:
+          - integer
+          - 'null'
+          description: File size in bytes.
+        invoice_number:
           type:
           - string
           - 'null'
-          description: Charge description from the invoice (denormalized from the line item).
-        amount:
-          type: string
-          description: Amount billed for the line item, as a decimal string.
-        service_type:
+          description: Carrier invoice number, extracted from the document.
+        invoice_date:
           type:
           - string
           - 'null'
-          description: Carrier service code (denormalized from the line item).
-        auditor:
-          type: string
-          description: Name of the audit rule that produced this finding.
-        confidence:
-          type: string
-          description: Confidence level reported by the auditor (e.g. `HIGH`, `MEDIUM`, `LOW`).
-        excluded:
-          type: boolean
-          description: Whether this finding has been marked as known/expected by the customer and should be excluded from active findings.
+          format: date
+          description: Date on the invoice, extracted from the document.
+        account_number:
+          type:
+          - string
+          - 'null'
+          description: Carrier account number on the invoice.
+        billing_period_start:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Start of the billing period covered by the invoice.
+        billing_period_end:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: End of the billing period covered by the invoice.
+        currency:
+          type:
+          - string
+          - 'null'
+          description: ISO 4217 currency code the invoice is denominated in.
         created_at:
           type: string
           format: date-time
-    Error:
-      type: object
-      required:
-      - error
-      properties:
-        error:
-          type: string
-          description: Human-readable error message.
+          description: When the invoice was uploaded.
   parameters:
-    Limit:
-      name: limit
-      in: query
-      description: Number of items to return per request.
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 50
     AuditId:
       name: audit_id
       in: path
@@ -548,25 +558,15 @@ components:
       description: Opaque cursor from a previous response. Omit on the first request.
       schema:
         type: string
-  responses:
-    Unauthorized:
-      description: Authentication is missing or invalid.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: The request was malformed or failed validation.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: The requested resource does not exist.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    Limit:
+      name: limit
+      in: query
+      description: Number of items to return per request.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
   securitySchemes:
     apiKey:
       type: http
