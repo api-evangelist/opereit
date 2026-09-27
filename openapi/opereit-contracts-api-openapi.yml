@@ -227,8 +227,8 @@ paths:
       - Contracts
 components:
   responses:
-    Unauthorized:
-      description: Authentication is missing or invalid.
+    NotFound:
+      description: The requested resource does not exist.
       content:
         application/json:
           schema:
@@ -239,21 +239,91 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFound:
-      description: The requested resource does not exist.
+    Unauthorized:
+      description: Authentication is missing or invalid.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
   schemas:
-    Error:
+    ContractSurcharge:
       type: object
+      description: A surcharge extracted from a contract — an additional fee applied to shipments under specific conditions.
       required:
-      - error
+      - id
+      - contract_id
+      - slug
+      - display_name
+      - billing_type
+      - value
+      - currency
+      - is_waived
       properties:
-        error:
+        id:
           type: string
-          description: Human-readable error message.
+        contract_id:
+          type: string
+        slug:
+          type: string
+          description: Stable identifier for the surcharge type.
+          example: fuel
+        display_name:
+          type: string
+          description: Human-readable surcharge name.
+          example: Fuel surcharge
+        origin_country:
+          type:
+          - string
+          - 'null'
+          description: ISO 3166-1 alpha-2 origin country code, if the surcharge is geographically scoped.
+        destination_country:
+          type:
+          - string
+          - 'null'
+          description: ISO 3166-1 alpha-2 destination country code, if the surcharge is geographically scoped.
+        service_type:
+          type:
+          - string
+          - 'null'
+          description: Service code this surcharge applies to, or `null` if it applies to all services.
+        billing_type:
+          type: string
+          enum:
+          - PERCENTAGE
+          - PERCENTAGE_OF_BASE
+          - FIXED
+          - TIERED
+          - PERCENTAGE_OFF
+          description: 'How the surcharge is billed.
+
+
+            - `PERCENTAGE`: % of one or more line items (see `calculation_base`).
+
+            - `PERCENTAGE_OF_BASE`: % of the base shipping rate only.
+
+            - `FIXED`: flat fee per shipment.
+
+            - `TIERED`: amount varies by weight or other tier.
+
+            - `PERCENTAGE_OFF`: discount, expressed as a percentage.'
+        value:
+          type: string
+          description: Surcharge value as a decimal string. Interpretation depends on `billing_type` (e.g. `"15.00"` = 15% for `PERCENTAGE`, or 15 currency units for `FIXED`).
+          example: '15.00'
+        currency:
+          type: string
+          description: ISO 4217 currency code (relevant for `FIXED` and `TIERED` surcharges).
+          example: EUR
+        is_waived:
+          type: boolean
+          description: Whether this surcharge is waived under the contract.
+        calculation_base:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: For `PERCENTAGE` surcharges, the list of slugs the percentage is applied to (e.g. `["base_rate"]`).
     CursorPagination:
       type: object
       required:
@@ -268,6 +338,14 @@ components:
         has_more:
           type: boolean
           description: Whether there are more items to fetch beyond the current page.
+    Error:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
     Contract:
       type: object
       description: A carrier contract uploaded to Opereit. Rates and surcharges are extracted asynchronously.
@@ -427,92 +505,7 @@ components:
           type: string
           description: ISO 4217 currency code.
           example: EUR
-    ContractSurcharge:
-      type: object
-      description: A surcharge extracted from a contract — an additional fee applied to shipments under specific conditions.
-      required:
-      - id
-      - contract_id
-      - slug
-      - display_name
-      - billing_type
-      - value
-      - currency
-      - is_waived
-      properties:
-        id:
-          type: string
-        contract_id:
-          type: string
-        slug:
-          type: string
-          description: Stable identifier for the surcharge type.
-          example: fuel
-        display_name:
-          type: string
-          description: Human-readable surcharge name.
-          example: Fuel surcharge
-        origin_country:
-          type:
-          - string
-          - 'null'
-          description: ISO 3166-1 alpha-2 origin country code, if the surcharge is geographically scoped.
-        destination_country:
-          type:
-          - string
-          - 'null'
-          description: ISO 3166-1 alpha-2 destination country code, if the surcharge is geographically scoped.
-        service_type:
-          type:
-          - string
-          - 'null'
-          description: Service code this surcharge applies to, or `null` if it applies to all services.
-        billing_type:
-          type: string
-          enum:
-          - PERCENTAGE
-          - PERCENTAGE_OF_BASE
-          - FIXED
-          - TIERED
-          - PERCENTAGE_OFF
-          description: 'How the surcharge is billed.
-
-
-            - `PERCENTAGE`: % of one or more line items (see `calculation_base`).
-
-            - `PERCENTAGE_OF_BASE`: % of the base shipping rate only.
-
-            - `FIXED`: flat fee per shipment.
-
-            - `TIERED`: amount varies by weight or other tier.
-
-            - `PERCENTAGE_OFF`: discount, expressed as a percentage.'
-        value:
-          type: string
-          description: Surcharge value as a decimal string. Interpretation depends on `billing_type` (e.g. `"15.00"` = 15% for `PERCENTAGE`, or 15 currency units for `FIXED`).
-          example: '15.00'
-        currency:
-          type: string
-          description: ISO 4217 currency code (relevant for `FIXED` and `TIERED` surcharges).
-          example: EUR
-        is_waived:
-          type: boolean
-          description: Whether this surcharge is waived under the contract.
-        calculation_base:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: For `PERCENTAGE` surcharges, the list of slugs the percentage is applied to (e.g. `["base_rate"]`).
   parameters:
-    ContractId:
-      name: contract_id
-      in: path
-      required: true
-      description: ID of the contract.
-      schema:
-        type: string
     Cursor:
       name: cursor
       in: query
@@ -528,6 +521,13 @@ components:
         minimum: 1
         maximum: 100
         default: 50
+    ContractId:
+      name: contract_id
+      in: path
+      required: true
+      description: ID of the contract.
+      schema:
+        type: string
   securitySchemes:
     apiKey:
       type: http
