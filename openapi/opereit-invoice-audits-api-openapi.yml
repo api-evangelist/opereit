@@ -204,195 +204,7 @@ paths:
       tags:
       - Invoice Audits
 components:
-  responses:
-    NotFound:
-      description: The requested resource does not exist.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: The request was malformed or failed validation.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: Authentication is missing or invalid.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
-    InvoiceAudit:
-      type: object
-      description: An audit of a carrier invoice against a contract.
-      required:
-      - id
-      - contract_id
-      - status
-      - created_at
-      properties:
-        id:
-          type: string
-        contract_id:
-          type: string
-          description: Contract this invoice was audited against.
-        carrier_name:
-          type:
-          - string
-          - 'null'
-          description: Carrier name (denormalized from the contract for convenience).
-        status:
-          type: string
-          enum:
-          - PENDING
-          - INGESTING
-          - AUDITING
-          - COMPLETE
-          - FAILED
-          description: 'Audit lifecycle state.
-
-
-            - `PENDING`: queued for processing.
-
-            - `INGESTING`: parsing the invoice file.
-
-            - `AUDITING`: running audit rules.
-
-            - `COMPLETE`: line items and findings are available.
-
-            - `FAILED`: audit failed; see `status_reason`.'
-        status_reason:
-          type:
-          - string
-          - 'null'
-          description: Explanation when `status=FAILED`.
-        total_line_items:
-          type:
-          - integer
-          - 'null'
-          description: Total line items extracted from the invoice. `null` until ingestion completes.
-        completed_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: When the audit reached a terminal state (`COMPLETE` or `FAILED`).
-        created_at:
-          type: string
-          format: date-time
-          description: When the audit was created.
-        file:
-          oneOf:
-          - $ref: '#/components/schemas/InvoiceAuditFile'
-          - type: 'null'
-          description: Metadata about the uploaded invoice file.
-    CursorPagination:
-      type: object
-      required:
-      - cursor
-      - has_more
-      properties:
-        cursor:
-          type:
-          - string
-          - 'null'
-          description: Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items.
-        has_more:
-          type: boolean
-          description: Whether there are more items to fetch beyond the current page.
-    Error:
-      type: object
-      required:
-      - error
-      properties:
-        error:
-          type: string
-          description: Human-readable error message.
-    InvoiceLineItem:
-      type: object
-      description: A single charge from the carrier invoice — a rate, surcharge, or adjustment applied to one tracking number.
-      required:
-      - id
-      - audit_id
-      - tracking_number
-      - charge_type
-      - amount
-      - has_finding
-      - created_at
-      properties:
-        id:
-          type: string
-        audit_id:
-          type: string
-        tracking_number:
-          type: string
-          description: Carrier tracking number for the shipment.
-        charge_description:
-          type:
-          - string
-          - 'null'
-          description: Free-text charge description from the invoice (e.g. `"Fuel surcharge"`).
-        charge_type:
-          type: string
-          enum:
-          - RATE
-          - SURCHARGE
-          - ADJUSTMENT
-          description: 'Kind of charge.
-
-
-            - `RATE`: base shipping rate.
-
-            - `SURCHARGE`: add-on fee.
-
-            - `ADJUSTMENT`: correction or credit.'
-        service_type:
-          type:
-          - string
-          - 'null'
-          description: Carrier service code applied to the shipment.
-        amount:
-          type: string
-          description: Amount billed, as a decimal string.
-          example: '12.50'
-        weight:
-          type:
-          - string
-          - 'null'
-          description: Actual weight in kg, as a decimal string.
-        billed_weight:
-          type:
-          - string
-          - 'null'
-          description: Billed (chargeable) weight in kg, as a decimal string. May differ from `weight` due to dimensional weight.
-        container_type:
-          type:
-          - string
-          - 'null'
-          description: Container or packaging for the shipment.
-        origin_country:
-          type:
-          - string
-          - 'null'
-          description: ISO 3166-1 alpha-2 origin country code.
-        destination_country:
-          type:
-          - string
-          - 'null'
-          description: ISO 3166-1 alpha-2 destination country code.
-        zone:
-          type:
-          - string
-          - 'null'
-          description: Carrier zone applied to the shipment, if any.
-        has_finding:
-          type: boolean
-          description: Whether the audit produced at least one finding for this line item.
-        created_at:
-          type: string
-          format: date-time
     AuditFinding:
       type: object
       description: A discrepancy detected during the audit between what the carrier billed and what the contract specifies.
@@ -480,6 +292,175 @@ components:
         created_at:
           type: string
           format: date-time
+    InvoiceLineItem:
+      type: object
+      description: A single charge from the carrier invoice — a rate, surcharge, or adjustment applied to one tracking number.
+      required:
+      - id
+      - audit_id
+      - tracking_number
+      - charge_type
+      - amount
+      - has_finding
+      - created_at
+      properties:
+        id:
+          type: string
+        audit_id:
+          type: string
+        tracking_number:
+          type: string
+          description: Carrier tracking number for the shipment.
+        charge_description:
+          type:
+          - string
+          - 'null'
+          description: Free-text charge description from the invoice (e.g. `"Fuel surcharge"`).
+        charge_type:
+          type: string
+          enum:
+          - RATE
+          - SURCHARGE
+          - ADJUSTMENT
+          description: 'Kind of charge.
+
+
+            - `RATE`: base shipping rate.
+
+            - `SURCHARGE`: add-on fee.
+
+            - `ADJUSTMENT`: correction or credit.'
+        service_type:
+          type:
+          - string
+          - 'null'
+          description: Carrier service code applied to the shipment.
+        amount:
+          type: string
+          description: Amount billed, as a decimal string.
+          example: '12.50'
+        weight:
+          type:
+          - string
+          - 'null'
+          description: Actual weight in kg, as a decimal string.
+        billed_weight:
+          type:
+          - string
+          - 'null'
+          description: Billed (chargeable) weight in kg, as a decimal string. May differ from `weight` due to dimensional weight.
+        container_type:
+          type:
+          - string
+          - 'null'
+          description: Container or packaging for the shipment.
+        origin_country:
+          type:
+          - string
+          - 'null'
+          description: ISO 3166-1 alpha-2 origin country code.
+        destination_country:
+          type:
+          - string
+          - 'null'
+          description: ISO 3166-1 alpha-2 destination country code.
+        zone:
+          type:
+          - string
+          - 'null'
+          description: Carrier zone applied to the shipment, if any.
+        has_finding:
+          type: boolean
+          description: Whether the audit produced at least one finding for this line item.
+        created_at:
+          type: string
+          format: date-time
+    CursorPagination:
+      type: object
+      required:
+      - cursor
+      - has_more
+      properties:
+        cursor:
+          type:
+          - string
+          - 'null'
+          description: Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items.
+        has_more:
+          type: boolean
+          description: Whether there are more items to fetch beyond the current page.
+    Error:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+    InvoiceAudit:
+      type: object
+      description: An audit of a carrier invoice against a contract.
+      required:
+      - id
+      - contract_id
+      - status
+      - created_at
+      properties:
+        id:
+          type: string
+        contract_id:
+          type: string
+          description: Contract this invoice was audited against.
+        carrier_name:
+          type:
+          - string
+          - 'null'
+          description: Carrier name (denormalized from the contract for convenience).
+        status:
+          type: string
+          enum:
+          - PENDING
+          - INGESTING
+          - AUDITING
+          - COMPLETE
+          - FAILED
+          description: 'Audit lifecycle state.
+
+
+            - `PENDING`: queued for processing.
+
+            - `INGESTING`: parsing the invoice file.
+
+            - `AUDITING`: running audit rules.
+
+            - `COMPLETE`: line items and findings are available.
+
+            - `FAILED`: audit failed; see `status_reason`.'
+        status_reason:
+          type:
+          - string
+          - 'null'
+          description: Explanation when `status=FAILED`.
+        total_line_items:
+          type:
+          - integer
+          - 'null'
+          description: Total line items extracted from the invoice. `null` until ingestion completes.
+        completed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the audit reached a terminal state (`COMPLETE` or `FAILED`).
+        created_at:
+          type: string
+          format: date-time
+          description: When the audit was created.
+        file:
+          oneOf:
+          - $ref: '#/components/schemas/InvoiceAuditFile'
+          - type: 'null'
+          description: Metadata about the uploaded invoice file.
     InvoiceAuditFile:
       type: object
       description: Metadata about the invoice document uploaded for an audit.
@@ -545,12 +526,6 @@ components:
           format: date-time
           description: When the invoice was uploaded.
   parameters:
-    Cursor:
-      name: cursor
-      in: query
-      description: Opaque cursor from a previous response. Omit on the first request.
-      schema:
-        type: string
     Limit:
       name: limit
       in: query
@@ -567,6 +542,31 @@ components:
       description: ID of the invoice audit.
       schema:
         type: string
+    Cursor:
+      name: cursor
+      in: query
+      description: Opaque cursor from a previous response. Omit on the first request.
+      schema:
+        type: string
+  responses:
+    NotFound:
+      description: The requested resource does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request was malformed or failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Authentication is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     apiKey:
       type: http
