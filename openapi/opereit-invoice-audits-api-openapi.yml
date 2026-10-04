@@ -205,6 +205,92 @@ paths:
       - Invoice Audits
 components:
   schemas:
+    InvoiceAudit:
+      type: object
+      description: An audit of a carrier invoice against a contract.
+      required:
+      - id
+      - contract_id
+      - status
+      - created_at
+      properties:
+        id:
+          type: string
+        contract_id:
+          type: string
+          description: Contract this invoice was audited against.
+        carrier_name:
+          type:
+          - string
+          - 'null'
+          description: Carrier name (denormalized from the contract for convenience).
+        status:
+          type: string
+          enum:
+          - PENDING
+          - INGESTING
+          - AUDITING
+          - COMPLETE
+          - FAILED
+          description: 'Audit lifecycle state.
+
+
+            - `PENDING`: queued for processing.
+
+            - `INGESTING`: parsing the invoice file.
+
+            - `AUDITING`: running audit rules.
+
+            - `COMPLETE`: line items and findings are available.
+
+            - `FAILED`: audit failed; see `status_reason`.'
+        status_reason:
+          type:
+          - string
+          - 'null'
+          description: Explanation when `status=FAILED`.
+        total_line_items:
+          type:
+          - integer
+          - 'null'
+          description: Total line items extracted from the invoice. `null` until ingestion completes.
+        completed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the audit reached a terminal state (`COMPLETE` or `FAILED`).
+        created_at:
+          type: string
+          format: date-time
+          description: When the audit was created.
+        file:
+          oneOf:
+          - $ref: '#/components/schemas/InvoiceAuditFile'
+          - type: 'null'
+          description: Metadata about the uploaded invoice file.
+    Error:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+    CursorPagination:
+      type: object
+      required:
+      - cursor
+      - has_more
+      properties:
+        cursor:
+          type:
+          - string
+          - 'null'
+          description: Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items.
+        has_more:
+          type: boolean
+          description: Whether there are more items to fetch beyond the current page.
     AuditFinding:
       type: object
       description: A discrepancy detected during the audit between what the carrier billed and what the contract specifies.
@@ -292,6 +378,70 @@ components:
         created_at:
           type: string
           format: date-time
+    InvoiceAuditFile:
+      type: object
+      description: Metadata about the invoice document uploaded for an audit.
+      required:
+      - id
+      - file_url
+      - file_name
+      - original_file_name
+      - created_at
+      properties:
+        id:
+          type: string
+        file_url:
+          type: string
+          format: uri
+          description: Time-limited URL to download the original invoice file.
+        file_name:
+          type: string
+          description: Storage filename.
+        original_file_name:
+          type: string
+          description: Filename as uploaded by the client.
+        file_size_bytes:
+          type:
+          - integer
+          - 'null'
+          description: File size in bytes.
+        invoice_number:
+          type:
+          - string
+          - 'null'
+          description: Carrier invoice number, extracted from the document.
+        invoice_date:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Date on the invoice, extracted from the document.
+        account_number:
+          type:
+          - string
+          - 'null'
+          description: Carrier account number on the invoice.
+        billing_period_start:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Start of the billing period covered by the invoice.
+        billing_period_end:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: End of the billing period covered by the invoice.
+        currency:
+          type:
+          - string
+          - 'null'
+          description: ISO 4217 currency code the invoice is denominated in.
+        created_at:
+          type: string
+          format: date-time
+          description: When the invoice was uploaded.
     InvoiceLineItem:
       type: object
       description: A single charge from the carrier invoice — a rate, surcharge, or adjustment applied to one tracking number.
@@ -375,182 +525,9 @@ components:
         created_at:
           type: string
           format: date-time
-    CursorPagination:
-      type: object
-      required:
-      - cursor
-      - has_more
-      properties:
-        cursor:
-          type:
-          - string
-          - 'null'
-          description: Opaque cursor to use in the next request to fetch the next page. `null` if there are no more items.
-        has_more:
-          type: boolean
-          description: Whether there are more items to fetch beyond the current page.
-    Error:
-      type: object
-      required:
-      - error
-      properties:
-        error:
-          type: string
-          description: Human-readable error message.
-    InvoiceAudit:
-      type: object
-      description: An audit of a carrier invoice against a contract.
-      required:
-      - id
-      - contract_id
-      - status
-      - created_at
-      properties:
-        id:
-          type: string
-        contract_id:
-          type: string
-          description: Contract this invoice was audited against.
-        carrier_name:
-          type:
-          - string
-          - 'null'
-          description: Carrier name (denormalized from the contract for convenience).
-        status:
-          type: string
-          enum:
-          - PENDING
-          - INGESTING
-          - AUDITING
-          - COMPLETE
-          - FAILED
-          description: 'Audit lifecycle state.
-
-
-            - `PENDING`: queued for processing.
-
-            - `INGESTING`: parsing the invoice file.
-
-            - `AUDITING`: running audit rules.
-
-            - `COMPLETE`: line items and findings are available.
-
-            - `FAILED`: audit failed; see `status_reason`.'
-        status_reason:
-          type:
-          - string
-          - 'null'
-          description: Explanation when `status=FAILED`.
-        total_line_items:
-          type:
-          - integer
-          - 'null'
-          description: Total line items extracted from the invoice. `null` until ingestion completes.
-        completed_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: When the audit reached a terminal state (`COMPLETE` or `FAILED`).
-        created_at:
-          type: string
-          format: date-time
-          description: When the audit was created.
-        file:
-          oneOf:
-          - $ref: '#/components/schemas/InvoiceAuditFile'
-          - type: 'null'
-          description: Metadata about the uploaded invoice file.
-    InvoiceAuditFile:
-      type: object
-      description: Metadata about the invoice document uploaded for an audit.
-      required:
-      - id
-      - file_url
-      - file_name
-      - original_file_name
-      - created_at
-      properties:
-        id:
-          type: string
-        file_url:
-          type: string
-          format: uri
-          description: Time-limited URL to download the original invoice file.
-        file_name:
-          type: string
-          description: Storage filename.
-        original_file_name:
-          type: string
-          description: Filename as uploaded by the client.
-        file_size_bytes:
-          type:
-          - integer
-          - 'null'
-          description: File size in bytes.
-        invoice_number:
-          type:
-          - string
-          - 'null'
-          description: Carrier invoice number, extracted from the document.
-        invoice_date:
-          type:
-          - string
-          - 'null'
-          format: date
-          description: Date on the invoice, extracted from the document.
-        account_number:
-          type:
-          - string
-          - 'null'
-          description: Carrier account number on the invoice.
-        billing_period_start:
-          type:
-          - string
-          - 'null'
-          format: date
-          description: Start of the billing period covered by the invoice.
-        billing_period_end:
-          type:
-          - string
-          - 'null'
-          format: date
-          description: End of the billing period covered by the invoice.
-        currency:
-          type:
-          - string
-          - 'null'
-          description: ISO 4217 currency code the invoice is denominated in.
-        created_at:
-          type: string
-          format: date-time
-          description: When the invoice was uploaded.
-  parameters:
-    Limit:
-      name: limit
-      in: query
-      description: Number of items to return per request.
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 50
-    AuditId:
-      name: audit_id
-      in: path
-      required: true
-      description: ID of the invoice audit.
-      schema:
-        type: string
-    Cursor:
-      name: cursor
-      in: query
-      description: Opaque cursor from a previous response. Omit on the first request.
-      schema:
-        type: string
   responses:
-    NotFound:
-      description: The requested resource does not exist.
+    Unauthorized:
+      description: Authentication is missing or invalid.
       content:
         application/json:
           schema:
@@ -561,12 +538,35 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: Authentication is missing or invalid.
+    NotFound:
+      description: The requested resource does not exist.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: Number of items to return per request.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    Cursor:
+      name: cursor
+      in: query
+      description: Opaque cursor from a previous response. Omit on the first request.
+      schema:
+        type: string
+    AuditId:
+      name: audit_id
+      in: path
+      required: true
+      description: ID of the invoice audit.
+      schema:
+        type: string
   securitySchemes:
     apiKey:
       type: http
